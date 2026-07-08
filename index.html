@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon GO Gent</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ALGEMENE STYLING --- */
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: #0f172a; /* Donkerblauwe, premium achtergrond */
+            color: #ffffff;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        /* --- PROFIEL SECTIE --- */
+        .avatar-container {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 16px auto;
+            background: linear-gradient(135px, #3b82f6, #ec4899); /* Mooie subtiele gradient in plaats van logo */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 15px;
+            margin: 0 0 32px 0;
+            line-height: 1.5;
+        }
+
+        /* --- KNOPPEN (DE LINKS) --- */
+        .link-btn {
+            display: block;
+            background-color: #1e293b; /* Iets lichtere box achtergrond */
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            border: 1px solid #334155;
+        }
+
+        /* Effect als je met de muis over de knop gaat of erop tikt */
+        .link-btn:hover {
+            transform: translateY(-2px);
+            background-color: #334155;
+            border-color: #475569;
+            box-shadow: 0 10px 20px -10px rgba(0,0,0,0.5);
+        }
+
+        /* --- SPECIFIEKE ACCENTEN (Optioneel voor Teams) --- */
+        .mystic { border-left: 5px solid #2563eb; }
+        .valor { border-left: 5px solid #dc2626; }
+        .instinct { border-left: 5px solid #facc15; }
+    </style>
+</head>
+<body>
+
+    <div class="avatar-container">✨</div>
+    
+    <h1>Pokémon GO Gent</h1>
+    <p class="subtitle">Vind al onze officiële kanalen, community info en handige links hieronder!</p>
+
+    <a href="https://discord.gg/jouwlink" target="_blank" class="link-btn mystic">Word lid van onze Discord</a>
+    <a href="https://instagram.com/pokemongogent" target="_blank" class="link-btn">Volg ons op Instagram</a>
+    <a href="https://docs.google.com/spreadsheets/..." target="_blank" class="link-btn instinct">Lucky Trades Google Sheet</a>
+    <a href="https://www.pokemongolive.com" target="_blank" class="link-btn valor">Actuele Event Kalender</a>
+
+</body>
+</html>
