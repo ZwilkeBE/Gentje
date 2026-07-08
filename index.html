@@ -3,133 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon GO Gent</title>
+    <title>POGO GENT</title>
     
-    <!-- Het moderne lettertype (Outfit) -->
+    <!-- Google Fonts voor de exacte gaming/tech stijl -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Dit zorgt ervoor dat we gratis icoontjes kunnen gebruiken (Font Awesome) -->
+    <!-- Font Awesome voor alle strakke icoontjes (zowel socials als in de knoppen) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* --- ALGEMENE STYLING --- */
         body {
-            font-family: 'Outfit', -apple-system, sans-serif;
-            background-color: #0d1117; /* Iets dieper donkergrijs/blauw voor een strakke game look */
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b1326; /* Diepe, donkerblauwe achtergrond */
             color: #ffffff;
-            max-width: 480px;
+            max-width: 550px;
             margin: 0 auto;
             padding: 40px 20px;
             text-align: center;
         }
 
-        /* --- PROFIEL / LOGO SECTIE --- */
+        /* --- PROFIEL / LOGO --- */
         .logo {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%; /* Maakt het logo mooi rond */
-            margin-bottom: 20px;
-            object-fit: cover;
-            border: 3px solid #30363d; /* Subtiele rand om het logo */
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            width: 180px;
+            height: auto;
+            margin-bottom: 10px;
         }
         
         h1 {
-            font-size: 26px;
-            font-weight: 800;
-            margin: 0 0 8px 0;
-            letter-spacing: -0.5px;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 38px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
         
         .subtitle {
-            color: #8b949e;
-            font-size: 15px;
-            margin: 0 0 35px 0;
-            line-height: 1.5;
+            color: #a0aec0;
+            font-size: 16px;
+            margin: 0 0 30px 0;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+
+        /* --- SOCIAL MEDIA ICONEN --- */
+        .social-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background-color: #1a2438;
+            color: #a0aec0;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .social-icon.active {
+            border: 2px solid #fbd38d; /* Goud/gele rand voor Discord */
+            color: #ffffff;
+            background-color: #222f47;
+        }
+
+        .social-icon:hover {
+            color: #ffffff;
+            background-color: #222f47;
+            transform: scale(1.05);
         }
 
         /* --- DE KNOPPEN --- */
         .link-btn {
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Zorgt dat tekst/icoon links lijnen, of verander naar 'center' */
-            background-color: #161b22; 
+            background-color: #172033; /* Donkere knoppen uit screenshot */
             color: #ffffff;
             text-decoration: none;
-            padding: 16px 24px;
+            padding: 18px 24px;
             margin-bottom: 16px;
-            border-radius: 50px; /* Mooie volledig ronde 'pill' knoppen zoals Linktree */
-            font-weight: 600;
-            font-size: 16px;
+            border-radius: 14px; /* Subtiel afgeronde hoeken */
             transition: all 0.2s ease-in-out;
-            border: 1px solid #30363d;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #23304a;
         }
 
-        /* Icoontje styling binnen de knop */
-        .link-btn i {
+        .link-btn:hover {
+            background-color: #202b45;
+            border-color: #31446b;
+            transform: translateY(-2px);
+        }
+
+        /* Styling voor het Font Awesome icoon aan de linkerkant */
+        .btn-icon {
             font-size: 20px;
-            width: 30px; /* Zorgt dat de tekst altijd netjes op dezelfde lijn begint */
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
             text-align: left;
         }
 
-        /* Effect bij eroverheen bewegen (hover) */
-        .link-btn:hover {
-            transform: translateY(-3px);
-            background-color: #21262d;
-            border-color: #58a6ff; /* Geeft een mooie blauwe gloed bij hover */
-            box-shadow: 0 8px 20px rgba(88,166,255,0.2);
+        /* De gecentreerde tekst op de knop */
+        .btn-text {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            flex-grow: 1;
+            text-align: center;
         }
 
-        /* --- GEPERSONALISEERDE KLEUREN VOOR ICOONTJES --- */
-        /* Je kunt deze klassen aan de knoppen geven om het icoon een kleur te geven */
+        /* Het pijltje naar rechts (>) */
+        .btn-arrow {
+            color: #4a5568;
+            font-size: 16px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* --- THEMAKLEUREN VOOR DE ICOONTJES --- */
         .c-discord { color: #5865F2; }
-        .c-instagram { color: #E1306C; }
-        .c-mystic { color: #007bff; }
-        .c-valor { color: #dc3545; }
-        .c-instinct { color: #facc15; }
-        .c-generic { color: #58a6ff; }
+        .c-campfire { color: #ff6b4a; }
+        .c-mystic { color: #3b82f6; }
+        .c-valor { color: #ef4444; }
+        .c-instinct { color: #eab308; }
+        .c-generic { color: #a0aec0; }
     </style>
 </head>
 <body>
 
-    <!-- 1. JOUW LOGO: 
-         Upload je logo (bijv. logo.png) ook naar je GitHub repository. 
-         Vervang dan 'logo.png' hieronder door de exacte bestandsnaam. -->
-    <img src="lpogo-gent-logo (1).png" alt="Pokémon GO Gent Logo" class="logo">
+    <!-- Logo (Zorg dat de bestandsnaam klopt met je upload op GitHub) -->
+    <img src="pogo-logo.png" alt="POGO GENT" class="logo">
     
-    <h1>Pokémon GO Gent</h1>
+    <h1>POGO GENT</h1>
     <p class="subtitle">Kom hier alles te weten over onze bruisende Pokémon GO Community in Gent!</p>
 
-    <!-- 2. DE KNOOPPEN (Met icoontjes):
-         Je kunt hier oneindig veel knoppen kopiëren en plakken om extra links toe te voegen.
-         Gebruik 'class="fa-brands fa-..."' voor socials, of 'fa-solid fa-...' voor gewone icoontjes. -->
-         
-    <!-- Discord Link -->
-    <a href="https://discord.gg/5BTyJUY" target="_blank" class="link-btn">
-        <i class="fa-brands fa-discord c-discord"></i> JOIN US ON DISCORD
+    <!-- Social Media Rijtje -->
+    <div class="social-container">
+        <a href="https://discord.gg/jouwlink" target="_blank" class="social-icon active"><i class="fa-brands fa-discord"></i></a>
+        <a href="https://facebook.com/..." target="_blank" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://instagram.com/pokemongogent" target="_blank" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://youtube.com/..." target="_blank" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+        <a href="https://x.com/..." target="_blank" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+    </div>
+
+    <!-- Knoppen Lijst met jouw eigen links en mijn icoontjes -->
+    
+    <a href="https://discord.gg/jouwlink" target="_blank" class="link-btn">
+        <i class="fa-brands fa-discord btn-icon c-discord"></i>
+        <span class="btn-text">Join us on Discord</span>
+        <span class="btn-arrow">&gt;</span>
     </a>
 
-    <!-- Instagram Link -->
-    <a href="https://instagram.com/pokemongogent" target="_blank" class="link-btn">
-        <i class="fa-brands fa-instagram c-instagram"></i> Volg ons op Instagram
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-fire btn-icon c-campfire"></i>
+        <span class="btn-text">Niantic Campfire</span>
+        <span class="btn-arrow">&gt;</span>
     </a>
 
-    <!-- Voorbeeld extra link: Google Sheet (met een Excel/Tabel icoontje) -->
-    <a href="https://docs.google.com/spreadsheets/..." target="_blank" class="link-btn">
-        <i class="fa-solid fa-table c-instinct"></i> Lucky Trades Google Sheet
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-shirt btn-icon c-generic"></i>
+        <span class="btn-text">Merchandise</span>
+        <span class="btn-arrow">&gt;</span>
     </a>
 
-    <!-- Voorbeeld extra link: Website/Kalender (met een Kalender icoontje) -->
-    <a href="https://www.pokemongolive.com" target="_blank" class="link-btn">
-        <i class="fa-solid fa-calendar-days c-valor"></i> Actuele Event Kalender
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-map-location-dot btn-icon c-mystic"></i>
+        <span class="btn-text">Route Raid Hour & Day</span>
+        <span class="btn-arrow">&gt;</span>
     </a>
 
-    <!-- NIEUWE EXTRA LINK (Voorbeeld hoe je er zelf een toevoegt): -->
-    <a href="https://www.jouw-extra-link.com" target="_blank" class="link-btn">
-        <i class="fa-solid fa-link c-generic"></i> Hier komt je extra link
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-trophy btn-icon c-instinct"></i>
+        <span class="btn-text">Community DEX (CDEX) - Leaderboard</span>
+        <span class="btn-arrow">&gt;</span>
+    </a>
+
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-calendar-stars btn-icon c-valor"></i>
+        <span class="btn-text">Community Day (CDL) - Leaderboard</span>
+        <span class="btn-arrow">&gt;</span>
+    </a>
+
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-right-left btn-icon c-mystic"></i>
+        <span class="btn-text">Trade Lijsten</span>
+        <span class="btn-arrow">&gt;</span>
+    </a>
+
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-user-group btn-icon c-instinct"></i>
+        <span class="btn-text">Overzicht Friendcodes</span>
+        <span class="btn-arrow">&gt;</span>
+    </a>
+
+    <a href="DE_LINK_HIER" target="_blank" class="link-btn">
+        <i class="fa-solid fa-user-plus btn-icon c-generic"></i>
+        <span class="btn-text">Friendcode Toevoegen</span>
+        <span class="btn-arrow">&gt;</span>
     </a>
 
 </body>
