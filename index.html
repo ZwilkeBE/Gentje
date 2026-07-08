@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon GO Gent</title>
     
+    <!-- Het moderne lettertype (Outfit) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Dit zorgt ervoor dat we gratis icoontjes kunnen gebruiken (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* --- ALGEMENE STYLING --- */
         body {
             font-family: 'Outfit', -apple-system, sans-serif;
-            background-color: #0f172a; /* Donkerblauwe, premium achtergrond */
+            background-color: #0d1117; /* Iets dieper donkergrijs/blauw voor een strakke game look */
             color: #ffffff;
             max-width: 480px;
             margin: 0 auto;
@@ -21,74 +25,112 @@
             text-align: center;
         }
 
-        /* --- PROFIEL SECTIE --- */
-        .avatar-container {
-            width: 96px;
-            height: 96px;
-            margin: 0 auto 16px auto;
-            background: linear-gradient(135px, #3b82f6, #ec4899); /* Mooie subtiele gradient in plaats van logo */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+        /* --- PROFIEL / LOGO SECTIE --- */
+        .logo {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%; /* Maakt het logo mooi rond */
+            margin-bottom: 20px;
+            object-fit: cover;
+            border: 3px solid #30363d; /* Subtiele rand om het logo */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
         
         h1 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
             margin: 0 0 8px 0;
             letter-spacing: -0.5px;
         }
         
         .subtitle {
-            color: #94a3b8;
+            color: #8b949e;
             font-size: 15px;
-            margin: 0 0 32px 0;
+            margin: 0 0 35px 0;
             line-height: 1.5;
         }
 
-        /* --- KNOPPEN (DE LINKS) --- */
+        /* --- DE KNOPPEN --- */
         .link-btn {
-            display: block;
-            background-color: #1e293b; /* Iets lichtere box achtergrond */
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Zorgt dat tekst/icoon links lijnen, of verander naar 'center' */
+            background-color: #161b22; 
             color: #ffffff;
             text-decoration: none;
-            padding: 16px;
+            padding: 16px 24px;
             margin-bottom: 16px;
-            border-radius: 16px;
+            border-radius: 50px; /* Mooie volledig ronde 'pill' knoppen zoals Linktree */
             font-weight: 600;
             font-size: 16px;
-            transition: all 0.2s ease;
-            border: 1px solid #334155;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #30363d;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        /* Effect als je met de muis over de knop gaat of erop tikt */
+        /* Icoontje styling binnen de knop */
+        .link-btn i {
+            font-size: 20px;
+            width: 30px; /* Zorgt dat de tekst altijd netjes op dezelfde lijn begint */
+            text-align: left;
+        }
+
+        /* Effect bij eroverheen bewegen (hover) */
         .link-btn:hover {
-            transform: translateY(-2px);
-            background-color: #334155;
-            border-color: #475569;
-            box-shadow: 0 10px 20px -10px rgba(0,0,0,0.5);
+            transform: translateY(-3px);
+            background-color: #21262d;
+            border-color: #58a6ff; /* Geeft een mooie blauwe gloed bij hover */
+            box-shadow: 0 8px 20px rgba(88,166,255,0.2);
         }
 
-        /* --- SPECIFIEKE ACCENTEN (Optioneel voor Teams) --- */
-        .mystic { border-left: 5px solid #2563eb; }
-        .valor { border-left: 5px solid #dc2626; }
-        .instinct { border-left: 5px solid #facc15; }
+        /* --- GEPERSONALISEERDE KLEUREN VOOR ICOONTJES --- */
+        /* Je kunt deze klassen aan de knoppen geven om het icoon een kleur te geven */
+        .c-discord { color: #5865F2; }
+        .c-instagram { color: #E1306C; }
+        .c-mystic { color: #007bff; }
+        .c-valor { color: #dc3545; }
+        .c-instinct { color: #facc15; }
+        .c-generic { color: #58a6ff; }
     </style>
 </head>
 <body>
 
-    <div class="avatar-container">✨</div>
+    <!-- 1. JOUW LOGO: 
+         Upload je logo (bijv. logo.png) ook naar je GitHub repository. 
+         Vervang dan 'logo.png' hieronder door de exacte bestandsnaam. -->
+    <img src="logo.png" alt="Pokémon GO Gent Logo" class="logo">
     
     <h1>Pokémon GO Gent</h1>
-    <p class="subtitle">Vind al onze officiële kanalen, community info en handige links hieronder!</p>
+    <p class="subtitle">Welkom bij de Gentse community! Vind al onze officiële kanalen en handige links hieronder.</p>
 
-    <a href="https://discord.gg/jouwlink" target="_blank" class="link-btn mystic">Word lid van onze Discord</a>
-    <a href="https://instagram.com/pokemongogent" target="_blank" class="link-btn">Volg ons op Instagram</a>
-    <a href="https://docs.google.com/spreadsheets/..." target="_blank" class="link-btn instinct">Lucky Trades Google Sheet</a>
-    <a href="https://www.pokemongolive.com" target="_blank" class="link-btn valor">Actuele Event Kalender</a>
+    <!-- 2. DE KNOOPPEN (Met icoontjes):
+         Je kunt hier oneindig veel knoppen kopiëren en plakken om extra links toe te voegen.
+         Gebruik 'class="fa-brands fa-..."' voor socials, of 'fa-solid fa-...' voor gewone icoontjes. -->
+         
+    <!-- Discord Link -->
+    <a href="https://discord.gg/jouwlink" target="_blank" class="link-btn">
+        <i class="fa-brands fa-discord c-discord"></i> Word lid van onze Discord
+    </a>
+
+    <!-- Instagram Link -->
+    <a href="https://instagram.com/pokemongogent" target="_blank" class="link-btn">
+        <i class="fa-brands fa-instagram c-instagram"></i> Volg ons op Instagram
+    </a>
+
+    <!-- Voorbeeld extra link: Google Sheet (met een Excel/Tabel icoontje) -->
+    <a href="https://docs.google.com/spreadsheets/..." target="_blank" class="link-btn">
+        <i class="fa-solid fa-table c-instinct"></i> Lucky Trades Google Sheet
+    </a>
+
+    <!-- Voorbeeld extra link: Website/Kalender (met een Kalender icoontje) -->
+    <a href="https://www.pokemongolive.com" target="_blank" class="link-btn">
+        <i class="fa-solid fa-calendar-days c-valor"></i> Actuele Event Kalender
+    </a>
+
+    <!-- NIEUWE EXTRA LINK (Voorbeeld hoe je er zelf een toevoegt): -->
+    <a href="https://www.jouw-extra-link.com" target="_blank" class="link-btn">
+        <i class="fa-solid fa-link c-generic"></i> Hier komt je extra link
+    </a>
 
 </body>
 </html>
