@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aanmelden Friend Codes - POGO Gent</title>
+  <title>Aanmelden Friend Codes - POGO GENT</title>
 
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -152,7 +152,7 @@
 
   <div class="container">
     <div class="card">
-      <h1>PoGoGent Community</h1>
+      <h1>POGO GENT Community</h1>
       <p class="subtitle">Voeg je Trainer Code toe aan de openbare vriendenlijst</p>
 
       <form id="trainerForm">
@@ -166,11 +166,10 @@
           <input type="text" id="trainer_code" required pattern="[0-9\s]{12,16}" placeholder="1234 5678 9012">
         </div>
 
-        
         <div class="form-group">
           <label for="team">Team <span class="required-asterisk">*</span></label>
           <select id="team" required>
-            <option value="">Kies je team...</option>
+            <option value="" disabled selected>Kies je team...</option>
             <option value="Valor">Team Valor (Rood)</option>
             <option value="Mystic">Team Mystic (Blauw)</option>
             <option value="Instinct">Team Instinct (Geel)</option>
@@ -182,31 +181,28 @@
           <input type="text" id="location" required placeholder="bijv. Gent, Ledeberg, Merelbeke...">
         </div>
 
-<div class="form-group">
-  <label for="discord_name">Discord Naam *</label>
-  <input type="text" id="discord_name" placeholder="bijv. gebruikersnaam" required>
-</div>
+        <div class="form-group">
+          <label for="discord_name">Discord Naam <span class="required-asterisk">*</span></label>
+          <input type="text" id="discord_name" required placeholder="bijv. gebruikersnaam">
+        </div>
+        
+        <div class="form-group">
+          <label for="lucky_eggs">Lucky Eggs voor level-ups?</label>
+          <select id="lucky_eggs" required>
+            <option value="" disabled selected>Maak een keuze...</option>
+            <option value="Ja">Ja, graag afspreken voor Ultra/Best/Forever Friends</option>
+            <option value="Nee">Nee, maakt niet uit</option>
+          </select>
+        </div>
 
         <div class="form-group">
-  <label for="lucky_egg">Lucky Eggs voor level-ups?<span style="color: red;">*</span>
-  </label>
-  <select id="lucky_egg" name="lucky_egg" required>
-    <option value="" disabled selected>Maak een keuze...</option>
-     <option value="Ja">Ja, graag afspreken voor Ultra/Best/Forever Friends</option>
-     <option value="Nee">Nee, maakt niet uit</option>
-  </select>
-</div>
-
-
-        <div class="form-group">
-  <label for="player_type">Ben je een opener of sender van cadeaus? *</label>
-  <select id="player_type" name="player_type" required>
-    <option value="" disabled selected>Maak een keuze...</option>
-    <option value="Opener">Opener (Ik open cadeaus)</option>
-    <option value="Sender">Sender (Ik stuur cadeaus)</option>
-  </select>
-</div>
-
+          <label for="player_type">Ben je een opener of sender van cadeaus?</label>
+          <select id="player_type" name="player_type" required>
+            <option value="" disabled selected>Maak een keuze...</option>
+            <option value="Opener">Opener (Ik open cadeaus)</option>
+            <option value="Sender">Sender (Ik stuur cadeaus)</option>
+          </select>
+        </div>
 
         <button type="submit" id="submitBtn">Toevoegen aan POGO Gent</button>
       </form>
@@ -246,8 +242,9 @@
         trainer_code: cleanCode,
         team: document.getElementById('team').value,
         location: document.getElementById('location').value.trim(),
-        discord_name: document.getElementById('discord_name').value.trim() || null,
-        lucky_eggs: document.getElementById('lucky_eggs').value
+        discord_name: document.getElementById('discord_name').value.trim(),
+        lucky_eggs: document.getElementById('lucky_eggs').value,
+        player_type: document.getElementById('player_type').value
       };
 
       const { data, error } = await _supabase
@@ -258,7 +255,7 @@
         status.className = 'error';
         status.innerText = 'Fout bij opslaan: ' + error.message;
         btn.disabled = false;
-        btn.innerText = 'Voeg mijn gegevens toe!';
+        btn.innerText = 'Toevoegen aan POGO Gent';
       } else {
         status.className = 'success';
         status.innerText = 'Gelukt! Je Trainer Code is toegevoegd.';
