@@ -3,23 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Friend Codes & Trainers - POGO Gent</title>
-  
-  <!-- PapaParse voor het inlezen van de Google Sheet CSV -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <title>Friend Codes - PoGoGent Community</title>
+
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --primary-color: #2b3a4a;
-      --bg-color: #f4f7f6;
+      --primary: #2b3a4a;
+      --bg: #f4f7f6;
       --card-bg: #ffffff;
-      --text-color: #333333;
-      
-      /* Team Kleuren */
-      --valor-color: #ff4d4d;
-      --mystic-color: #3b82f6;
-      --instinct-color: #eab308;
-      --neutral-color: #6b7280;
+      --border: #e2e8f0;
+      --text: #334155;
     }
 
     * {
@@ -30,197 +25,153 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.6;
-      padding: 20px;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px 12px;
+      line-height: 1.5;
     }
 
     .container {
-      max-width: 1000px;
-      margin: 0 auto;
+      max-width: 900px;
+      margin: 20px auto;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    header h1 {
-      font-size: 2.2rem;
-      color: var(--primary-color);
-      margin-bottom: 8px;
-    }
-
-    header p {
-      color: #666;
-      font-size: 1.05rem;
-    }
-
-    /* Zoekbalk & Filters */
-    .controls {
+    .header-card {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 25px;
       justify-content: space-between;
       align-items: center;
-      background: var(--card-bg);
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      gap: 15px;
     }
 
-    .search-input {
-      flex: 1;
-      min-width: 220px;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
+    h1 {
+      font-size: 1.6rem;
+      color: var(--primary);
+    }
+
+    .btn-add {
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .btn-add:hover {
+      background: #1d4ed8;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
       border-radius: 8px;
       font-size: 0.95rem;
-      outline: none;
+      margin-bottom: 20px;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 
-    .search-input:focus {
-      border-color: var(--mystic-color);
-    }
-
-    .filter-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      border: none;
-      background: #e5e7eb;
-      color: #374151;
-      padding: 8px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.88rem;
-      transition: all 0.2s ease;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .filter-btn[data-team="valor"].active { background: var(--valor-color); }
-    .filter-btn[data-team="mystic"].active { background: var(--mystic-color); }
-    .filter-btn[data-team="instinct"].active { background: var(--instinct-color); color: #000; }
-
-    /* Leden Kaarten Grid */
-    .friends-grid {
+    .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 16px;
     }
 
     .card {
       background: var(--card-bg);
       border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border-left: 6px solid var(--neutral-color);
-      position: relative;
+      padding: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 8px;
+      position: relative;
     }
-
-    .card.team-valor { border-left-color: var(--valor-color); }
-    .card.team-mystic { border-left-color: var(--mystic-color); }
-    .card.team-instinct { border-left-color: var(--instinct-color); }
 
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      align-items: center;
     }
 
     .trainer-name {
-      font-size: 1.2rem;
       font-weight: 700;
-      color: #111;
-    }
-
-    .in-game-name {
-      font-size: 0.85rem;
-      color: #777;
+      font-size: 1.1rem;
+      color: #0f172a;
     }
 
     .badge {
+      padding: 3px 8px;
+      border-radius: 12px;
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 12px;
       text-transform: uppercase;
-      background: #f3f4f6;
+      color: white;
     }
 
-    .badge.valor { background: #fee2e2; color: #991b1b; }
-    .badge.mystic { background: #dbeafe; color: #1e40af; }
-    .badge.instinct { background: #fef9c3; color: #854d0e; }
+    .badge.valor { background-color: #ef4444; }
+    .badge.mystic { background-color: #3b82f6; }
+    .badge.instinct { background-color: #eab308; }
+    .badge.default { background-color: #64748b; }
 
-    .card-details {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 16px;
-    }
-
-    .card-details p {
-      margin-bottom: 4px;
-    }
-
-    /* Trainer Code Box & Copy Button */
     .code-box {
       background: #f8fafc;
       border: 1px dashed #cbd5e1;
       border-radius: 8px;
       padding: 10px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      align-items: center;
+      margin: 6px 0;
     }
 
     .code-text {
-      font-family: monospace;
+      font-family: monospace, monospace;
+      font-weight: 700;
       font-size: 1.05rem;
-      font-weight: bold;
       letter-spacing: 1px;
       color: #1e293b;
     }
 
-    .copy-btn {
-      background: var(--primary-color);
-      color: white;
+    .btn-copy {
+      background: #e2e8f0;
       border: none;
       padding: 6px 12px;
       border-radius: 6px;
-      cursor: pointer;
       font-size: 0.8rem;
       font-weight: 600;
-      transition: background 0.2s;
+      cursor: pointer;
+      color: #334155;
+      transition: all 0.2s;
     }
 
-    .copy-btn:hover {
-      opacity: 0.9;
+    .btn-copy:hover {
+      background: #cbd5e1;
     }
 
-    .copy-btn.copied {
-      background: #10b981;
+    .details {
+      font-size: 0.85rem;
+      color: #64748b;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    #loading, #no-results {
+    .loading, .empty {
       text-align: center;
       padding: 40px;
-      font-size: 1.1rem;
-      color: #666;
+      color: #64748b;
+      font-size: 1rem;
       grid-column: 1 / -1;
     }
   </style>
@@ -228,169 +179,126 @@
 <body>
 
   <div class="container">
-    <header>
-      <h1>PoGoGent Friend Codes</h1>
-      <p>Vind lokale Pokémon GO trainers, voeg ze toe en coördineer Lucky Eggs voor level-ups!</p>
-    </header>
-
-    <!-- Zoek- en Filterbalk -->
-    <div class="controls">
-      <input type="text" id="searchInput" class="search-input" placeholder="Zoek op naam, Discord of stad...">
-      
-      <div class="filter-buttons">
-        <button class="filter-btn active" data-team="all">Alles</button>
-        <button class="filter-btn" data-team="valor">Valor</button>
-        <button class="filter-btn" data-team="mystic">Mystic</button>
-        <button class="filter-btn" data-team="instinct">Instinct</button>
+    <div class="header-card">
+      <div>
+        <h1>PoGoGent Friend Codes</h1>
+        <p style="color:#64748b; font-size:0.9rem;">Vind en voeg trainers uit de regio Gent toe!</p>
       </div>
+      <a href="/join" class="btn-add">+ Code Toevoegen</a>
     </div>
 
-    <!-- Kaarten overzicht -->
-    <div id="friendsGrid" class="friends-grid">
-      <div id="loading">Gegevens worden geladen uit de Google Sheet...</div>
+    <input type="text" id="search" class="search-box" placeholder="Zoek op naam, regio of team...">
+
+    <div id="grid" class="grid-container">
+      <div class="loading">Friend codes laden...</div>
     </div>
   </div>
 
   <script>
-    // =========================================================================
-    // 1. PLAK HIER JE GEPUBLICEERDE GOOGLE SHEET CSV URL IN:
-    // =========================================================================
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT7bfW_1eGZUbcoBNwK56Z1-PULD1ZT0YQ7BPXkDfyfk2B4ahG1N0Bu6SbRHVWCtVCkFMA2YligdeNn/pub?gid=196810219&single=true&output=csv';
+    // Supabase gegevens
+    const SUPABASE_URL = 'https://jgvouztircuqhrisisdd.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ecKa4O0QKRkcHdpkEVl8rg_T6jEn5MZ';
+
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allTrainers = [];
-    let currentTeamFilter = 'all';
 
-    // CSV ophalen via PapaParse
-    function loadSheetData() {
-      if (SHEET_CSV_URL.includes('VOEG_HIER_JE')) {
-        document.getElementById('friendsGrid').innerHTML = 
-          '<div id="no-results"> Vergeet niet de <code>SHEET_CSV_URL</code> in de HTML-code te vervangen door je eigen Google Sheet CSV-link!</div>';
+    async function fetchTrainers() {
+      const grid = document.getElementById('grid');
+      
+      const { data, error } = await _supabase
+        .from('trainers')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) {
+        grid.innerHTML = `<div class="empty">Fout bij laden: ${error.message}</div>`;
         return;
       }
 
-      PapaParse.parse(SHEET_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          allTrainers = results.data;
-          renderCards(allTrainers);
-        },
-        error: function(err) {
-          document.getElementById('friendsGrid').innerHTML = 
-            '<div id="no-results">Er is een fout opgetreden bij het laden van de gegevens.</div>';
-          console.error(err);
-        }
-      });
+      allTrainers = data;
+      renderTrainers(allTrainers);
     }
 
-    // Renderen van de kaarten
-    function renderCards(trainers) {
-      const grid = document.getElementById('friendsGrid');
-      grid.innerHTML = '';
+    function renderTrainers(list) {
+      const grid = document.getElementById('grid');
 
-      const searchTerms = document.getElementById('searchInput').value.toLowerCase();
-
-      const filtered = trainers.filter(t => {
-        // Kolomnamen aanpassen aan exact hoe ze in je Google Form / Sheet staan:
-        const trainerName = t['Trainersnaam'] || t['Trainer Name'] || t['In-game naam'] || '';
-        const team = (t['Kleur van team'] || t['Team'] || '').toLowerCase();
-        const location = t['In welke stad of land ze spelen'] || t['Stad'] || '';
-        const discord = t['Discord naam'] || t['Discord'] || '';
-
-        const matchesSearch = 
-          trainerName.toLowerCase().includes(searchTerms) ||
-          location.toLowerCase().includes(searchTerms) ||
-          discord.toLowerCase().includes(searchTerms);
-
-        const matchesTeam = currentTeamFilter === 'all' || team.includes(currentTeamFilter);
-
-        return matchesSearch && matchesTeam;
-      });
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<div id="no-results">Geen trainers gevonden die aan de zoekopdracht voldoen.</div>';
+      if (!list || list.length === 0) {
+        grid.innerHTML = '<div class="empty">Nog geen trainers gevonden.</div>';
         return;
       }
 
-      filtered.forEach(trainer => {
-        // Veldwaarden uitlezen (pas veldnamen aan indien nodig)
-        const name = trainer['Trainersnaam'] || trainer['Trainer Name'] || trainer['In-game naam'] || 'Onbekend';
-        const code = trainer['Trainer code'] || trainer['Code'] || 'Geen code';
-        const team = trainer['Kleur van team'] || trainer['Team'] || 'Neutraal';
-        const location = trainer['In welke stad of land ze spelen'] || trainer['Stad'] || 'Onbekend';
-        const discord = trainer['Discord naam'] || trainer['Discord'] || '';
-        const luckyEggs = trainer['Lucky Eggs gebruiken voor level-ups'] || trainer['Lucky Eggs'] || '';
+      grid.innerHTML = list.map(t => {
+        const teamClass = (t.team || '').toLowerCase();
+        const formattedCode = formatCode(t.trainer_code);
 
-        const teamClass = team.toLowerCase().includes('valor') ? 'valor' :
-                          team.toLowerCase().includes('mystic') ? 'mystic' :
-                          team.toLowerCase().includes('instinct') ? 'instinct' : 'neutral';
-
-        const cardHtml = `
-          <div class="card team-${teamClass}">
-            <div>
-              <div class="card-header">
-                <div>
-                  <div class="trainer-name">${escapeHtml(name)}</div>
-                  ${discord ? `<div class="in-game-name">Discord: ${escapeHtml(discord)}</div>` : ''}
-                </div>
-                <span class="badge ${teamClass}">${escapeHtml(team)}</span>
-              </div>
-
-              <div class="card-details">
-                <p><strong>Locatie:</strong> ${escapeHtml(location)}</p>
-                ${luckyEggs ? `<p><strong>Lucky Eggs:</strong> ${escapeHtml(luckyEggs)}</p>` : ''}
-              </div>
+        return `
+          <div class="card">
+            <div class="card-header">
+              <span class="trainer-name">${escapeHtml(t.trainer_name)}</span>
+              <span class="badge ${teamClass}">${escapeHtml(t.team || 'Team')}</span>
             </div>
 
             <div class="code-box">
-              <span class="code-text">${escapeHtml(code)}</span>
-              <button class="copy-btn" onclick="copyCode('${escapeHtml(code)}', this)">Kopieer</button>
+              <span class="code-text">${formattedCode}</span>
+              <button class="btn-copy" onclick="copyCode('${t.trainer_code}', this)">Kopieer</button>
+            </div>
+
+            <div class="details">
+              <span>📍 ${escapeHtml(t.location || 'Gent')}</span>
+              ${t.discord_name ? `<span>💬 Discord: ${escapeHtml(t.discord_name)}</span>` : ''}
+              ${t.lucky_eggs === 'Ja' ? `<span>🥚 Spreekt af voor Lucky Eggs</span>` : ''}
             </div>
           </div>
         `;
-        grid.innerHTML += cardHtml;
-      });
+      }).join('');
     }
 
-    // Kopieer-functie voor Trainer Code
-    function copyCode(code, button) {
-      const cleanCode = code.replace(/\s+/g, ''); // Verwijdert eventuele spaties
-      navigator.clipboard.writeText(cleanCode).then(() => {
-        const originalText = button.innerText;
-        button.innerText = 'Gekopieerd!';
-        button.classList.add('copied');
-        
+    function formatCode(code) {
+      if (!code) return '';
+      const clean = code.replace(/\s+/g, '');
+      if (clean.length === 12) {
+        return `${clean.slice(0, 4)} ${clean.slice(4, 8)} ${clean.slice(8, 12)}`;
+      }
+      return code;
+    }
+
+    function copyCode(code, btn) {
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'Gekopieerd!';
+        btn.style.background = '#86efac';
+        btn.style.color = '#14532d';
         setTimeout(() => {
-          button.innerText = originalText;
-          button.classList.remove('copied');
+          btn.innerText = originalText;
+          btn.style.background = '';
+          btn.style.color = '';
         }, 2000);
       });
     }
 
-    // HTML escapen ter beveiliging tegen XSS
     function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
     }
 
-    // Event Listeners
-    document.getElementById('searchInput').addEventListener('input', () => renderCards(allTrainers));
-
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        currentTeamFilter = e.target.getAttribute('data-team');
-        renderCards(allTrainers);
-      });
+    // Zoekfunctionaliteit
+    document.getElementById('search').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      const filtered = allTrainers.filter(t => 
+        (t.trainer_name && t.trainer_name.toLowerCase().includes(q)) ||
+        (t.location && t.location.toLowerCase().includes(q)) ||
+        (t.team && t.team.toLowerCase().includes(q)) ||
+        (t.discord_name && t.discord_name.toLowerCase().includes(q))
+      );
+      renderTrainers(filtered);
     });
 
-    // Starten met gegevens ophalen
-    loadSheetData();
+    // Starten
+    fetchTrainers();
   </script>
 </body>
 </html>
