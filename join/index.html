@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aanmelden Friend Codes - PoGoGent</title>
+
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #2b3a4a;
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 30px auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #444;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: #fff;
+    }
+
+    .required-asterisk {
+      color: #e11d48;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #1e293b;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    #status.success {
+      display: block;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    #status.error {
+      display: block;
+      background: #ffe4e6;
+      color: #9f1239;
+    }
+
+    .nav-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h1>PoGoGent Community</h1>
+      <p class="subtitle">Voeg je Trainer Code toe aan de openbare vriendenlijst</p>
+
+      <form id="trainerForm">
+        <div class="form-group">
+          <label for="trainer_name">In-game Trainersnaam <span class="required-asterisk">*</span></label>
+          <input type="text" id="trainer_name" required placeholder="bijv. AshKetchum99">
+        </div>
+
+        <div class="form-group">
+          <label for="trainer_code">Trainer Code (12 cijfers) <span class="required-asterisk">*</span></label>
+          <input type="text" id="trainer_code" required pattern="[0-9\s]{12,16}" placeholder="1234 5678 9012">
+        </div>
+
+        <div class="form-group">
+          <label for="team">Team <span class="required-asterisk">*</span></label>
+          <select id="team" required>
+            <option value="">Kies je team...</option>
+            <option value="Valor">Team Valor (Rood)</option>
+            <option value="Mystic">Team Mystic (Blauw)</option>
+            <option value="Instinct">Team Instinct (Geel)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Stad / Regio <span class="required-asterisk">*</span></label>
+          <input type="text" id="location" required placeholder="bijv. Gent, Ledeberg, Merelbeke...">
+        </div>
+
+        <div class="form-group">
+          <label for="discord_name">Discord Naam (Optioneel)</label>
+          <input type="text" id="discord_name" placeholder="bijv. gebruikersnaam">
+        </div>
+
+        <div class="form-group">
+          <label for="lucky_eggs">Lucky Eggs voor Level-ups?</label>
+          <select id="lucky_eggs">
+            <option value="Ja">Ja, graag afspreken voor Ultra/Best Friends</option>
+            <option value="Nee">Nee / Maakt niet uit</option>
+          </select>
+        </div>
+
+        <button type="submit" id="submitBtn">Toevoegen aan PoGoGent</button>
+      </form>
+
+      <div id="status"></div>
+
+      <a href="/friends" class="nav-link">&larr; Bekijk alle Friend Codes</a>
+    </div>
+  </div>
+
+  <script>
+    // Jouw Supabase gegevens:
+    const SUPABASE_URL = 'https://jgvouztircuqhrisisdd.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ecKa400QKRkcHdpkEVl8rg_T6jEn...'; // PLAK HIER JE VOLLEDIGE PUBLISHABLE KEY UIT JE SCREENSHOT
+
+    // Supabase client initialiseren
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById('trainerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      const status = document.getElementById('status');
+
+      btn.disabled = true;
+      btn.innerText = 'Opslaan...';
+      status.className = '';
+      status.style.display = 'none';
+
+      // Spaties uit de trainer code verwijderen (bijv. "1234 5678 9012" -> "123456789012")
+      const rawCode = document.getElementById('trainer_code').value;
+      const cleanCode = rawCode.replace(/\s+/g, '');
+
+      const payload = {
+        trainer_name: document.getElementById('trainer_name').value.trim(),
+        trainer_code: cleanCode,
+        team: document.getElementById('team').value,
+        location: document.getElementById('location').value.trim(),
+        discord_name: document.getElementById('discord_name').value.trim() || null,
+        lucky_eggs: document.getElementById('lucky_eggs').value
+      };
+
+      const { data, error } = await _supabase
+        .from('trainers')
+        .insert([payload]);
+
+      if (error) {
+        status.className = 'error';
+        status.innerText = 'Fout bij opslaan: ' + error.message;
+        btn.disabled = false;
+        btn.innerText = 'Toevoegen aan PoGoGent';
+      } else {
+        status.className = 'success';
+        status.innerText = 'Gelukt! Je Trainer Code is toegevoegd.';
+        document.getElementById('trainerForm').reset();
+        
+        // Automatisch na 1.5 seconde doorsturen naar de vriendenlijst
+        setTimeout(() => {
+          window.location.href = '/friends';
+        }, 1500);
+      }
+    });
+  </script>
+</body>
+</html>
