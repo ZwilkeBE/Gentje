@@ -162,10 +162,11 @@
         </div>
 
         <div class="form-group">
-          <label for="trainer_code">Trainer Code (12 cijfers) <span class="required-asterisk">*</span></label>
+          <label for="trainer_code">Trainer Code (12 cijfers met spaties) <span class="required-asterisk">*</span></label>
           <input type="text" id="trainer_code" required pattern="[0-9\s]{12,16}" placeholder="1234 5678 9012">
         </div>
 
+        
         <div class="form-group">
           <label for="team">Team <span class="required-asterisk">*</span></label>
           <select id="team" required>
@@ -182,19 +183,31 @@
         </div>
 
         <div class="form-group">
-          <label for="discord_name">Discord Naam (Optioneel)</label>
+          <label for="discord_name">Discord Naam *</label>
           <input type="text" id="discord_name" placeholder="bijv. gebruikersnaam">
-        </div>
+        required
+  >
+</div>
 
         <div class="form-group">
           <label for="lucky_eggs">Lucky Eggs voor Level-ups?</label>
           <select id="lucky_eggs">
-            <option value="Ja">Ja, graag afspreken voor Ultra/Best Friends</option>
-            <option value="Nee">Nee / Maakt niet uit</option>
+            <option value="Ja">Ja, graag afspreken voor Ultra/Best/Forever Friends</option>
+            <option value="Nee">Nee, maakt niet uit</option>
           </select>
         </div>
 
-        <button type="submit" id="submitBtn">Toevoegen aan PoGoGent</button>
+        <div class="form-group">
+  <label for="player_type">Ben je een opener of sender van cadeaus? *</label>
+  <select id="player_type" name="player_type" required>
+    <option value="" disabled selected>Maak een keuze...</option>
+    <option value="Opener">Opener (Ik open cadeaus)</option>
+    <option value="Sender">Sender (Ik stuur cadeaus)</option>
+  </select>
+</div>
+
+
+        <button type="submit" id="submitBtn">Toevoegen aan POGO Gent</button>
       </form>
 
       <div id="status"></div>
