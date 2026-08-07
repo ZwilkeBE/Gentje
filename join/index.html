@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aanmelden Friend Codes - PoGoGent</title>
+  <title>Aanmelden Friend Codes - POGO Gent</title>
 
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -182,13 +182,11 @@
           <input type="text" id="location" required placeholder="bijv. Gent, Ledeberg, Merelbeke...">
         </div>
 
-        <div class="form-group">
-          <label for="discord_name">Discord Naam *</label>
-          <input type="text" id="discord_name" placeholder="bijv. gebruikersnaam">
-        required
-  >
+<div class="form-group">
+  <label for="discord_name">Discord Naam *</label>
+  <input type="text" id="discord_name" placeholder="bijv. gebruikersnaam" required>
 </div>
-
+        
         <div class="form-group">
           <label for="lucky_eggs">Lucky Eggs voor Level-ups?</label>
           <select id="lucky_eggs">
@@ -257,7 +255,7 @@
         status.className = 'error';
         status.innerText = 'Fout bij opslaan: ' + error.message;
         btn.disabled = false;
-        btn.innerText = 'Toevoegen aan PoGoGent';
+        btn.innerText = 'Voeg mijn gegevens toe!';
       } else {
         status.className = 'success';
         status.innerText = 'Gelukt! Je Trainer Code is toegevoegd.';
