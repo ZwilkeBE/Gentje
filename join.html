@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Friend Codes - POGO Gent</title>
+  <title>Aanmelden Friend Codes - POGO Gent</title>
 
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -31,120 +31,120 @@
     }
 
     .container {
-      max-width: 1100px;
-      margin: 20px auto;
+      max-width: 520px;
+      margin: 30px auto;
     }
 
     .card {
       background: var(--card-bg);
-      padding: 25px;
+      padding: 30px;
       border-radius: 12px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-    }
-
-    .header-flex {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
     }
 
     h1 {
       font-size: 1.8rem;
       color: var(--primary-color);
+      margin-bottom: 8px;
+      text-align: center;
     }
 
-    .btn-add {
-      display: inline-block;
-      padding: 10px 18px;
-      background: var(--primary-color);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
+    p.subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
       font-weight: 600;
       font-size: 0.9rem;
-      transition: background 0.2s;
+      color: #444;
     }
 
-    .btn-add:hover {
-      background: #1e293b;
-    }
-
-    .search-box {
-      margin-bottom: 20px;
-    }
-
-    .search-box input {
+    input, select {
       width: 100%;
-      padding: 12px 16px;
+      padding: 11px 14px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 0.95rem;
+      background: #fafafa;
+      transition: border-color 0.2s, background 0.2s;
     }
 
-    .table-responsive {
-      overflow-x: auto;
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: #fff;
     }
 
-    table {
+    .required-asterisk {
+      color: #e11d48;
+    }
+
+    button {
       width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #eee;
-      white-space: nowrap;
-    }
-
-    th {
-      background-color: #f8fafc;
-      color: var(--primary-color);
-      font-weight: 700;
-    }
-
-    tr:hover {
-      background-color: #f1f5f9;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 700;
+      padding: 13px;
+      background: var(--primary-color);
       color: white;
-    }
-
-    .badge-valor { background-color: #ef4444; }
-    .badge-mystic { background-color: #3b82f6; }
-    .badge-instinct { background-color: #eab308; color: #000; }
-    .badge-default { background-color: #64748b; }
-
-    .copy-btn {
-      cursor: pointer;
-      background: #e2e8f0;
       border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      margin-left: 6px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
       transition: background 0.2s;
     }
 
-    .copy-btn:hover {
-      background: #cbd5e1;
+    button:hover {
+      background: #1e293b;
     }
 
-    #loading, #empty {
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 18px;
       text-align: center;
-      padding: 30px;
-      color: #64748b;
       font-weight: 600;
+      font-size: 0.95rem;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    #status.success {
+      display: block;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    #status.error {
+      display: block;
+      background: #ffe4e6;
+      color: #9f1239;
+    }
+
+    .nav-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -152,151 +152,131 @@
 
   <div class="container">
     <div class="card">
-      <div class="header-flex">
-        <div>
-          <h1>PoGoGent Friend Codes</h1>
-          <p style="color: #666; font-size: 0.9rem;">Vind vrienden in Gent en omgeving om cadeaus uit te wisselen</p>
+      <h1>PoGoGent Community</h1>
+      <p class="subtitle">Voeg je Trainer Code toe aan de openbare vriendenlijst</p>
+
+      <form id="trainerForm">
+        <div class="form-group">
+          <label for="trainer_name">In-game Trainersnaam <span class="required-asterisk">*</span></label>
+          <input type="text" id="trainer_name" required placeholder="bijv. AshKetchum99">
         </div>
-        <a href="/" class="btn-add">+ Mijn Code Toevoegen</a>
-      </div>
 
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Zoek op naam, stad, team of Discord naam...">
-      </div>
+        <div class="form-group">
+          <label for="trainer_code">Trainer Code (12 cijfers met spaties) <span class="required-asterisk">*</span></label>
+          <input type="text" id="trainer_code" required pattern="[0-9\s]{12,16}" placeholder="1234 5678 9012">
+        </div>
 
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Trainer Naam</th>
-              <th>Team</th>
-              <th>Trainer Code</th>
-              <th>Stad / Regio</th>
-              <th>Discord Naam</th>
-              <th>Lucky Eggs</th>
-              <th>Opener / Sender</th>
-            </tr>
-          </thead>
-          <tbody id="trainersTableBody">
-            <!-- Data wordt dynamisch ingeladen -->
-          </tbody>
-        </table>
-        <div id="loading">Gegevens laden uit Supabase...</div>
-        <div id="empty" style="display: none;">Geen trainers gevonden.</div>
-      </div>
+        <div class="form-group">
+          <label for="team">Team <span class="required-asterisk">*</span></label>
+          <select id="team" required>
+            <option value="" disabled selected>Kies je team...</option>
+            <option value="Valor">Team Valor (Rood)</option>
+            <option value="Mystic">Team Mystic (Blauw)</option>
+            <option value="Instinct">Team Instinct (Geel)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Stad / Regio <span class="required-asterisk">*</span></label>
+          <input type="text" id="location" required placeholder="bijv. Gent, Ledeberg, Merelbeke...">
+        </div>
+
+        <div class="form-group">
+          <label for="discord_name">Discord Naam <span class="required-asterisk">*</span></label>
+          <input type="text" id="discord_name" required placeholder="bijv. gebruikersnaam">
+        </div>
+        
+        <div class="form-group">
+          <label for="lucky_eggs">Lucky Eggs voor level-ups?</label>
+          <select id="lucky_eggs" required>
+            <option value="" disabled selected>Maak een keuze...</option>
+            <option value="Ja">Ja, graag afspreken voor Ultra/Best/Forever Friends</option>
+            <option value="Nee">Nee, maakt niet uit</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="player_type">Ben je een opener of sender van cadeaus?</label>
+          <select id="player_type" name="player_type" required>
+            <option value="" disabled selected>Maak een keuze...</option>
+            <option value="Opener">Opener (Ik open cadeaus)</option>
+            <option value="Sender">Sender (Ik stuur cadeaus)</option>
+            <option value="Beide">Beide (Ik open en stuur cadeaus)</option>
+          </select>
+        </div>
+
+        <button type="submit" id="submitBtn">Toevoegen aan POGO Gent</button>
+      </form>
+
+      <div id="status"></div>
+
+      <a href="/friends" class="nav-link">&larr; Bekijk alle Friend Codes</a>
     </div>
   </div>
 
   <script>
-    // Supabase gegevens:
+    // Jouw Supabase gegevens:
     const SUPABASE_URL = 'https://jgvouztircuqhrisisdd.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_ecKa4O0QKRkcHdpkEVl8rg_T6jEn5MZ';
 
+    // Supabase client initialiseren
     const { createClient } = supabase;
     const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let allTrainers = [];
+    document.getElementById('trainerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      const status = document.getElementById('status');
 
-    // Formatteer 12 cijfers met spaties (bijv. 1234 5678 9012)
-    function formatCode(code) {
-      if (!code) return '';
-      const clean = code.replace(/\D/g, '');
-      return clean.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3');
-    }
+      // Extra check om te zorgen dat er echt gekozen is
+      const luckyEggsVal = document.getElementById('lucky_eggs').value;
+      const playerTypeVal = document.getElementById('player_type').value;
 
-    // Kopieer-functie voor trainer code
-    function copyCode(code, btn) {
-      navigator.clipboard.writeText(code).then(() => {
-        const originalText = btn.innerText;
-        btn.innerText = 'Gekopieerd!';
-        btn.style.background = '#86efac';
-        setTimeout(() => {
-          btn.innerText = originalText;
-          btn.style.background = '#e2e8f0';
-        }, 1500);
-      });
-    }
-
-    // Team badge helper
-    function getTeamBadge(team) {
-      if (!team) return '<span class="badge badge-default">Onbekend</span>';
-      const t = team.toLowerCase();
-      if (t.includes('valor')) return '<span class="badge badge-valor">Valor</span>';
-      if (t.includes('mystic')) return '<span class="badge badge-mystic">Mystic</span>';
-      if (t.includes('instinct')) return '<span class="badge badge-instinct">Instinct</span>';
-      return `<span class="badge badge-default">${team}</span>`;
-    }
-
-    // Tabel renderen
-    function renderTable(trainers) {
-      const tbody = document.getElementById('trainersTableBody');
-      const emptyDiv = document.getElementById('empty');
-      tbody.innerHTML = '';
-
-      if (trainers.length === 0) {
-        emptyDiv.style.display = 'block';
+      if (!luckyEggsVal || !playerTypeVal) {
+        status.className = 'error';
+        status.innerText = 'Maak a.u.b. een keuze bij alle vragen.';
         return;
       }
-      emptyDiv.style.display = 'none';
 
-      trainers.forEach(t => {
-        const tr = document.createElement('tr');
+      btn.disabled = true;
+      btn.innerText = 'Opslaan...';
+      status.className = '';
+      status.style.display = 'none';
 
-        const formattedCode = formatCode(t.trainer_code || '');
+      // Spaties uit de trainer code verwijderen
+      const rawCode = document.getElementById('trainer_code').value;
+      const cleanCode = rawCode.replace(/\s+/g, '');
 
-        tr.innerHTML = `
-          <td><strong>${t.trainer_name || '-'}</strong></td>
-          <td>${getTeamBadge(t.team)}</td>
-          <td>
-            <code>${formattedCode}</code>
-            <button class="copy-btn" onclick="copyCode('${t.trainer_code}', this)">Kopieer</button>
-          </td>
-          <td>${t.location || '-'}</td>
-          <td>${t.discord_name || '-'}</td>
-          <td>${t.lucky_eggs || '-'}</td>
-          <td>${t.player_type || '-'}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Data ophalen uit Supabase
-    async function loadTrainers() {
-      const loadingDiv = document.getElementById('loading');
+      const payload = {
+        trainer_name: document.getElementById('trainer_name').value.trim(),
+        trainer_code: cleanCode,
+        team: document.getElementById('team').value,
+        location: document.getElementById('location').value.trim(),
+        discord_name: document.getElementById('discord_name').value.trim(),
+        lucky_eggs: luckyEggsVal,
+        player_type: playerTypeVal
+      };
 
       const { data, error } = await _supabase
         .from('trainers')
-        .select('*')
-        .order('id', { ascending: false });
-
-      loadingDiv.style.display = 'none';
+        .insert([payload]);
 
       if (error) {
-        console.error('Fout bij ophalen:', error);
-        loadingDiv.innerText = 'Fout bij het laden van de gegevens.';
-        loadingDiv.style.display = 'block';
-        return;
+        status.className = 'error';
+        status.innerText = 'Fout bij opslaan: ' + error.message;
+        btn.disabled = false;
+        btn.innerText = 'Toevoegen aan POGO Gent';
+      } else {
+        status.className = 'success';
+        status.innerText = 'Gelukt! Je Trainer Code is toegevoegd.';
+        document.getElementById('trainerForm').reset();
+        
+        setTimeout(() => {
+          window.location.href = '/friends';
+        }, 1500);
       }
-
-      allTrainers = data || [];
-      renderTable(allTrainers);
-    }
-
-    // Zoekbalk functionaliteit
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      const term = e.target.value.toLowerCase();
-      const filtered = allTrainers.filter(t => 
-        (t.trainer_name && t.trainer_name.toLowerCase().includes(term)) ||
-        (t.location && t.location.toLowerCase().includes(term)) ||
-        (t.team && t.team.toLowerCase().includes(term)) ||
-        (t.discord_name && t.discord_name.toLowerCase().includes(term)) ||
-        (t.trainer_code && t.trainer_code.includes(term))
-      );
-      renderTable(filtered);
     });
-
-    // Starten bij pagina-load
-    loadTrainers();
   </script>
 </body>
 </html>
