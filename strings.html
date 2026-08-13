@@ -48,11 +48,12 @@
       margin-bottom: 15px; 
     }
     .category-title { 
-      font-size: 1.1rem; 
-      color: #4a5568; 
-      margin-top: 18px; 
+      font-size: 1.15rem; 
+      color: #2d3748; 
+      margin-top: 20px; 
       margin-bottom: 8px; 
-      font-weight: 600; 
+      font-weight: 700; 
+      display: block;
     }
     .string-box { 
       background: #f8fafc; 
@@ -68,7 +69,7 @@
     }
     .copy-btn { 
       margin-top: 8px; 
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       background: #3182ce; 
       color: white; 
       border: none; 
@@ -99,7 +100,6 @@
 </div>
 
 <script>
-  // Jouw exacte Google Sheets CSV Publicatielink:
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdTzAM79CJAe8nc83RkwIpIbXV-dPu_DIlh1r0ApoNHddkZr57WuFoyoOQPqMs0kE2wtPwQFSuDt2C/pub?gid=82013888&single=true&output=csv';
 
   async function loadStrings() {
@@ -107,56 +107,27 @@
       const response = await fetch(CSV_URL);
       const data = await response.text();
       
-      const rows = parseCSV(data);
+      const rows = parseCSVLines(data);
       const container = document.getElementById('strings-container');
       const topInfo = document.getElementById('top-info');
       container.innerHTML = '';
 
-      // Eerste regel instellen als Random info balk
-      if (rows[0] && rows[0][0]) {
-        topInfo.innerText = rows[0][0];
+      // Eerste regel: Random info
+      if (rows.length > 0 && rows[0]) {
+        topInfo.innerText = rows[0];
       }
 
       let currentCard = null;
 
       for (let i = 1; i < rows.length; i++) {
-        let text = rows[i][0] ? rows[i][0].trim() : '';
+        let text = rows[i] ? rows[i].trim() : '';
         if (!text) continue;
 
-        const isString = text.includes('&') || text.includes('!');
+        // Bepaal of deze regel een zoekstring is (bevat &, !, of bestaat voornamelijk uit getallen en komma's)
+        const isString = text.includes('&') || text.includes('!') || /^[\d,\s]+$/.test(text);
 
-        if (!isString) {
-          // Controleer of dit een categorie-titel is
-          const isCategory = text.toLowerCase().includes('c1') || 
-                             text.toLowerCase().includes('c4') || 
-                             text.toLowerCase().includes('c7') || 
-                             text.toLowerCase().includes('lijst') ||
-                             text.toLowerCase().includes('lucky') ||
-                             text.toLowerCase().includes('tradelijst') ||
-                             text.toLowerCase().includes('special');
-
-          if (isCategory && currentCard) {
-            // Verwijder de (C1), (C4), (C7) aanduidingen uit de titel
-            let cleanCategory = text.replace(/\s*\(.*?\)/g, '').trim();
-
-            const catHeader = document.createElement('h4');
-            catHeader.className = 'category-title';
-            catHeader.innerText = cleanCategory;
-            currentCard.appendChild(catHeader);
-          } else {
-            // Maak één overzichtelijk blok per speler aan
-            currentCard = document.createElement('div');
-            currentCard.className = 'player-card';
-            
-            const playerTitle = document.createElement('h3');
-            playerTitle.className = 'player-name';
-            playerTitle.innerText = text;
-            currentCard.appendChild(playerTitle);
-            
-            container.appendChild(currentCard);
-          }
-        } else if (currentCard) {
-          // Voeg de zoekstring en de kopieerknop toe aan de speler-kaart
+        if (isString && currentCard) {
+          // VOEG ZOEKSTRING TOE AAN HUIDIGE SPELER
           const uniqueId = 'string-' + i;
           
           const stringBox = document.createElement('div');
@@ -171,6 +142,34 @@
 
           currentCard.appendChild(stringBox);
           currentCard.appendChild(copyBtn);
+        } else {
+          // HET IS EEN KOP (Categorie OF Spelersnaam)
+          const hasCategoryCode = /\(C\d+\)/i.test(text);
+          const isCategoryWord = text.toLowerCase().includes('tradelijst') || 
+                                 text.toLowerCase().includes('lucky') || 
+                                 text.toLowerCase().includes('special') || 
+                                 text.toLowerCase().includes('legendary');
+
+          if ((hasCategoryCode || isCategoryWord) && currentCard) {
+            // HET IS EEN CATEGORIE: Maak de titel schoon door de (C1/C4/C7) te verwijderen
+            let cleanCategory = text.replace(/\s*\(C\d+\)/gi, '').replace(/\s*\(.*?\)/g, '').trim();
+
+            const catHeader = document.createElement('h4');
+            catHeader.className = 'category-title';
+            catHeader.innerText = cleanCategory;
+            currentCard.appendChild(catHeader);
+          } else {
+            // HET IS EEN NIEUWE SPELER: Maak een nieuwe kaart aan
+            currentCard = document.createElement('div');
+            currentCard.className = 'player-card';
+            
+            const playerTitle = document.createElement('h3');
+            playerTitle.className = 'player-name';
+            playerTitle.innerText = text;
+            currentCard.appendChild(playerTitle);
+            
+            container.appendChild(currentCard);
+          }
         }
       }
     } catch (err) {
@@ -179,17 +178,18 @@
     }
   }
 
-  // Slimme CSV parser die netjes omgaat met komma's binnen zoekstrings
-  function parseCSV(text) {
-    let lines = text.split('\n');
+  // Betrouwbare CSV-regel lezer
+  function parseCSVLines(csvText) {
+    const lines = csvText.split(/\r?\n/);
     return lines.map(line => {
-      let match = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-      if (!match) return [line.replace(/^"|"$/g, '')];
-      return match.map(m => m.replace(/^"|"$/g, ''));
+      let trimmed = line.trim();
+      if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+        trimmed = trimmed.substring(1, trimmed.length - 1).replace(/""/g, '"');
+      }
+      return trimmed;
     });
   }
 
-  // Kopieer-functie met visuele feedback op de knop
   function copyToClipboard(elementId, btnElement) {
     const text = document.getElementById(elementId).innerText;
     navigator.clipboard.writeText(text).then(() => {
