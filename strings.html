@@ -33,9 +33,7 @@
       const response = await fetch(CSV_URL);
       const data = await response.text();
       
-      // Slimme CSV-parser die rekening houdt met komma's binnen quotes
       const rows = parseCSV(data);
-      
       const container = document.getElementById('strings-container');
       const topInfo = document.getElementById('top-info');
       container.innerHTML = '';
@@ -47,29 +45,41 @@
 
       let currentCard = null;
 
-      // Door alle regels lopen
       for (let i = 1; i < rows.length; i++) {
         let text = rows[i][0] ? rows[i][0].trim() : '';
         if (!text) continue;
 
-        // Is het een string? (bevat ampersand of uitroepteken)
         const isString = text.includes('&') || text.includes('!');
 
         if (!isString) {
-          // Dit is een Spelersnaam of Categorie-kop
-          // Maak een nieuwe speler-kaart aan als dat nodig is
-          const card = document.createElement('div');
-          card.className = 'player-card';
-          
-          const title = document.createElement('h3');
-          title.className = 'player-name';
-          title.innerText = text;
-          card.appendChild(title);
-          
-          container.appendChild(card);
-          currentCard = card;
+          // Check of het een categorie is (bijv. bevat "C1", "C4", "C7" of "Tradelijst") 
+          // OF dat het de naam van een nieuwe speler is.
+          const isCategory = text.toLowerCase().includes('c1') || 
+                             text.toLowerCase().includes('c4') || 
+                             text.toLowerCase().includes('c7') || 
+                             text.toLowerCase().includes('lijst') ||
+                             text.toLowerCase().includes('lucky');
+
+          if (isCategory && currentCard) {
+            // Voeg een tussenkop (categorie) toe in de BESTAANDE spelerskaart
+            const catHeader = document.createElement('h4');
+            catHeader.className = 'category-title';
+            catHeader.innerText = text;
+            currentCard.appendChild(catHeader);
+          } else {
+            // Dit is een NIEUWE SPELER -> Maak 1 grote speler-kaart aan!
+            currentCard = document.createElement('div');
+            currentCard.className = 'player-card';
+            
+            const playerTitle = document.createElement('h3');
+            playerTitle.className = 'player-name';
+            playerTitle.innerText = text;
+            currentCard.appendChild(playerTitle);
+            
+            container.appendChild(currentCard);
+          }
         } else if (currentCard) {
-          // Dit is de bijbehorende string, voeg hem toe aan de huidige kaart
+          // Voeg de zoekstring + kopieerknop toe aan de speler-kaart
           const uniqueId = 'string-' + i;
           
           const stringBox = document.createElement('div');
@@ -87,11 +97,12 @@
         }
       }
     } catch (err) {
+      console.error(err);
       document.getElementById('strings-container').innerHTML = 'Er is een fout opgetreden bij het laden van de gegevens.';
     }
   }
 
-  // Functie die CSV correct leest zonder te struikelen over komma's in zoekstrings
+  // CSV Parser die rekening houdt met komma's en aanhalingstekens
   function parseCSV(text) {
     let lines = text.split('\n');
     return lines.map(line => {
