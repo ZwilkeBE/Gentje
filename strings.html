@@ -230,7 +230,9 @@
         if (!text) continue;
 
         const isUrl = text.startsWith('http://') || text.startsWith('https://');
-        const isString = text.includes('&') || text.includes('!') || /^[\d,\s]+$/.test(text);
+        
+        // EEN ECHTE ZOEKSTRING BEVAT GETALLEN (bijv. "26,58,83..." of "!4*")
+        const isString = /[\d]/.test(text) && (text.includes(',') || text.includes('&') || text.includes('!'));
 
         if (isUrl && currentCard) {
           // IS EEN EXTERNE GODEX LINK
@@ -243,7 +245,7 @@
           currentCard.appendChild(godexLink);
 
         } else if (isString && currentCard) {
-          // VOEG ZOEKSTRING TOE
+          // VOEG ZOEKSTRING TOE (Met grijze box & kopieerknop)
           const uniqueId = 'string-' + i;
           
           const stringBox = document.createElement('div');
@@ -267,13 +269,12 @@
                                  lowerText.includes('lucky') || 
                                  lowerText.includes('special') || 
                                  lowerText.includes('legendary') ||
+                                 lowerText.includes('event') ||
                                  lowerText.includes('costume') ||
-                                 lowerText.includes('male') ||
-                                 lowerText.includes('pikachu') ||
-                                 lowerText.includes('pika');
+                                 lowerText.includes('pikachu');
 
           if ((hasCategoryCode || isCategoryWord) && currentCard) {
-            // CATEGORIE: Maak titel schoon
+            // CATEGORIE / SUBTITEL
             let cleanCategory = text.replace(/\s*\(C\d+\)/gi, '').replace(/\s*\(.*?\)/g, '').trim();
 
             const catHeader = document.createElement('h4');
@@ -282,7 +283,7 @@
             currentCard.appendChild(catHeader);
 
           } else {
-            // NIEUWE SPELER: Maak unieke ID voor navigatie
+            // SPELERSNAAM
             const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
 
             currentCard = document.createElement('div');
