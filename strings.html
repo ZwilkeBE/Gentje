@@ -25,7 +25,7 @@
 </div>
 
 <script>
-  // 1. PLAK HIER DOWNSCALE/PUBLICATIE LINK VAN JE GOOGLE SHEET CSV:
+  // 1. DOWNSCALE/PUBLICATIE LINK VAN JE GOOGLE SHEET CSV:
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdTzAM79CJAe8nc83RkwIpIbXV-dPu_DIlh1r0ApoNHddkZr57WuFoyoOQPqMs0kE2wtPwQFSuDt2C/pub?gid=82013888&single=true&output=csv';
 
   async function loadStrings() {
@@ -33,42 +33,72 @@
       const response = await fetch(CSV_URL);
       const data = await response.text();
       
-      // Converteer CSV naar regels
-      const rows = data.split('\n').map(row => row.split(','));
+      // Slimme CSV-parser die rekening houdt met komma's binnen quotes
+      const rows = parseCSV(data);
       
       const container = document.getElementById('strings-container');
       const topInfo = document.getElementById('top-info');
       container.innerHTML = '';
 
-      // Eerste regel bevat vaak de 'Random info'
+      // Eerste regel: Random info
       if (rows[0] && rows[0][0]) {
-        topInfo.innerText = rows[0][0].replace(/"/g, '');
+        topInfo.innerText = rows[0][0];
       }
 
-      let currentHTML = '';
-      
-      // Door de regels lopen en HTML opbouwen
-      for (let i = 1; i < rows.length; i++) {
-        let cell = rows[i][0] ? rows[i][0].replace(/"/g, '').trim() : '';
-        if (!cell) continue;
+      let currentCard = null;
 
-        // Als de cel geen komma's/nummers van een string bevat, is het waarschijnlijk een Spelersnaam of Categorie
-        if (!cell.includes('&') && !cell.includes('!')) {
-          currentHTML += `<div class="player-card"><h3 class="player-name">${cell}</h3>`;
-        } else {
-          // Het is een string!
+      // Door alle regels lopen
+      for (let i = 1; i < rows.length; i++) {
+        let text = rows[i][0] ? rows[i][0].trim() : '';
+        if (!text) continue;
+
+        // Is het een string? (bevat ampersand of uitroepteken)
+        const isString = text.includes('&') || text.includes('!');
+
+        if (!isString) {
+          // Dit is een Spelersnaam of Categorie-kop
+          // Maak een nieuwe speler-kaart aan als dat nodig is
+          const card = document.createElement('div');
+          card.className = 'player-card';
+          
+          const title = document.createElement('h3');
+          title.className = 'player-name';
+          title.innerText = text;
+          card.appendChild(title);
+          
+          container.appendChild(card);
+          currentCard = card;
+        } else if (currentCard) {
+          // Dit is de bijbehorende string, voeg hem toe aan de huidige kaart
           const uniqueId = 'string-' + i;
-          currentHTML += `
-            <div class="string-box" id="${uniqueId}">${cell}</div>
-            <button class="copy-btn" onclick="copyToClipboard('${uniqueId}')">📋 Kopieer string</button>
-          `;
+          
+          const stringBox = document.createElement('div');
+          stringBox.className = 'string-box';
+          stringBox.id = uniqueId;
+          stringBox.innerText = text;
+
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'copy-btn';
+          copyBtn.innerHTML = '📋 Kopieer string';
+          copyBtn.onclick = () => copyToClipboard(uniqueId);
+
+          currentCard.appendChild(stringBox);
+          currentCard.appendChild(copyBtn);
         }
       }
-      
-      container.innerHTML = currentHTML;
     } catch (err) {
       document.getElementById('strings-container').innerHTML = 'Er is een fout opgetreden bij het laden van de gegevens.';
     }
+  }
+
+  // Functie die CSV correct leest zonder te struikelen over komma's in zoekstrings
+  function parseCSV(text) {
+    let lines = text.split('\n');
+    return lines.map(line => {
+      let match = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+      if (!match) return [line.replace(/^"|"$/g, '')];
+      return match.map(m => m.replace(/^"|"$/g, ''));
+    });
   }
 
   function copyToClipboard(elementId) {
