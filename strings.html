@@ -16,6 +16,31 @@
       max-width: 800px; 
       margin: 0 auto; 
     }
+    /* HOME KNOP */
+    .header-nav {
+      margin-bottom: 15px;
+    }
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #4a5568;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: #ffffff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+    .home-btn:hover {
+      background: #f1f5f9;
+      color: #1a202c;
+      border-color: #94a3b8;
+    }
+    
     h2 {
       text-align: center;
       color: #111;
@@ -28,16 +53,53 @@
       border-radius: 10px; 
       font-weight: bold; 
       text-align: center; 
-      margin-bottom: 25px; 
+      margin-bottom: 15px; 
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+    /* NAVIGATIE / ZOEKBAR BOVENAAN */
+    .search-container {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+      text-align: center;
+    }
+    .search-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+    .player-dropdown {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 14px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background-color: #f8fafc;
+      color: #1e293b;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .player-dropdown:focus {
+      border-color: #3182ce;
+      background-color: #fff;
+    }
+    /* SPELER KAARTEN */
     .player-card { 
       background: #ffffff; 
       border-radius: 12px; 
       padding: 20px; 
       margin-bottom: 25px; 
       box-shadow: 0 4px 10px rgba(0,0,0,0.06); 
-      border: 1px solid #e2e8f0;
+      border: 2px solid #e2e8f0;
+      transition: all 0.4s ease;
+      scroll-margin-top: 20px;
     }
     .player-name { 
       font-size: 1.5rem; 
@@ -81,7 +143,7 @@
       display: inline-flex; 
       align-items: center; 
       gap: 6px; 
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
     }
     .copy-btn:hover { 
       background: #2b6cb0; 
@@ -94,9 +156,26 @@
 <body>
 
 <div class="container">
+  <!-- Terug naar Hoofdsite Knop -->
+  <div class="header-nav">
+    <a href="https://pogo.gent" class="home-btn">🏠 Terug naar POGO GENT</a>
+  </div>
+
   <h2>POGO GENT — Trade Strings</h2>
+  
+  <!-- Info balk -->
   <div id="top-info" class="top-info">Gegevens laden uit Google Sheets...</div>
-  <div id="strings-container">Lijst wordt opgebouwd...</div>
+  
+  <!-- Snelmenu Keuzelijst -->
+  <div class="search-container">
+    <label for="player-dropdown" class="search-label">🔍 Snel naar een speler navigeren:</label>
+    <select id="player-dropdown" class="player-dropdown" onchange="scrollToPlayer(this.value)">
+      <option value="">Lijst wordt opgebouwd...</option>
+    </select>
+  </div>
+
+  <!-- Container waar de spelers in komen -->
+  <div id="strings-container">Lijst wordt geladen...</div>
 </div>
 
 <script>
@@ -110,7 +189,10 @@
       const rows = parseCSVLines(data);
       const container = document.getElementById('strings-container');
       const topInfo = document.getElementById('top-info');
+      const dropdown = document.getElementById('player-dropdown');
+      
       container.innerHTML = '';
+      dropdown.innerHTML = '<option value="">-- Kies een speler uit de lijst --</option>';
 
       // Eerste regel: Random info
       if (rows.length > 0 && rows[0]) {
@@ -118,16 +200,17 @@
       }
 
       let currentCard = null;
+      let playerList = [];
 
       for (let i = 1; i < rows.length; i++) {
         let text = rows[i] ? rows[i].trim() : '';
         if (!text) continue;
 
-        // Bepaal of deze regel een zoekstring is (bevat &, !, of bestaat voornamelijk uit getallen en komma's)
+        // Bepaal of deze regel een zoekstring is
         const isString = text.includes('&') || text.includes('!') || /^[\d,\s]+$/.test(text);
 
         if (isString && currentCard) {
-          // VOEG ZOEKSTRING TOE AAN HUIDIGE SPELER
+          // VOEG ZOEKSTRING TOE
           const uniqueId = 'string-' + i;
           
           const stringBox = document.createElement('div');
@@ -151,7 +234,7 @@
                                  text.toLowerCase().includes('legendary');
 
           if ((hasCategoryCode || isCategoryWord) && currentCard) {
-            // HET IS EEN CATEGORIE: Maak de titel schoon door de (C1/C4/C7) te verwijderen
+            // CATEGORIE: Maak titel schoon
             let cleanCategory = text.replace(/\s*\(C\d+\)/gi, '').replace(/\s*\(.*?\)/g, '').trim();
 
             const catHeader = document.createElement('h4');
@@ -159,9 +242,12 @@
             catHeader.innerText = cleanCategory;
             currentCard.appendChild(catHeader);
           } else {
-            // HET IS EEN NIEUWE SPELER: Maak een nieuwe kaart aan
+            // NIEUWE SPELER: Maak unieke ID voor navigatie
+            const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
+
             currentCard = document.createElement('div');
             currentCard.className = 'player-card';
+            currentCard.id = playerId;
             
             const playerTitle = document.createElement('h3');
             playerTitle.className = 'player-name';
@@ -169,12 +255,42 @@
             currentCard.appendChild(playerTitle);
             
             container.appendChild(currentCard);
+
+            // Voeg speler toe aan navigatielijst
+            playerList.push({ name: text, id: playerId });
           }
         }
       }
+
+      // Vul de dropdown met alle gevonden spelers
+      playerList.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player.id;
+        option.innerText = player.name;
+        dropdown.appendChild(option);
+      });
+
     } catch (err) {
       console.error(err);
       document.getElementById('strings-container').innerHTML = 'Er is een fout opgetreden bij het laden van de gegevens.';
+    }
+  }
+
+  // Navigatie-functie met scroll & highlight effect
+  function scrollToPlayer(elementId) {
+    if (!elementId) return;
+
+    const playerCard = document.getElementById(elementId);
+    if (playerCard) {
+      playerCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      playerCard.style.borderColor = '#3182ce';
+      playerCard.style.boxShadow = '0 0 15px rgba(49, 130, 206, 0.4)';
+
+      setTimeout(() => {
+        playerCard.style.borderColor = '#e2e8f0';
+        playerCard.style.boxShadow = '0 4px 10px rgba(0,0,0,0.06)';
+      }, 2000);
     }
   }
 
@@ -190,6 +306,7 @@
     });
   }
 
+  // Kopieer-functie met visuele feedback
   function copyToClipboard(elementId, btnElement) {
     const text = document.getElementById(elementId).innerText;
     navigator.clipboard.writeText(text).then(() => {
