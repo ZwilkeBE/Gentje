@@ -151,24 +151,28 @@
     .copy-btn:active { 
       transform: scale(0.98); 
     }
-    /* LINK KNOP (voor externe overzichten/links) */
-    .link-btn {
+    /* GODEX LINK KNOP */
+    .godex-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       margin-top: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 15px;
       background: #319795;
       color: white;
       text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 10px 18px;
+      border-radius: 8px;
       font-weight: bold;
-      font-size: 0.85rem;
-      transition: background 0.2s;
+      font-size: 0.9rem;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .link-btn:hover {
+    .godex-btn:hover {
       background: #2c7a7b;
+    }
+    .godex-btn:active {
+      transform: scale(0.98);
     }
   </style>
 </head>
@@ -229,14 +233,14 @@
         const isString = text.includes('&') || text.includes('!') || /^[\d,\s]+$/.test(text);
 
         if (isUrl && currentCard) {
-          // IS EEN EXTERNE LINK
-          const linkBtn = document.createElement('a');
-          linkBtn.className = 'link-btn';
-          linkBtn.href = text;
-          linkBtn.target = '_blank';
-          linkBtn.rel = 'noopener noreferrer';
-          linkBtn.innerHTML = '🔗 Bekijk overzicht op externe pagina';
-          currentCard.appendChild(linkBtn);
+          // IS EEN EXTERNE GODEX LINK
+          const godexLink = document.createElement('a');
+          godexLink.className = 'godex-btn';
+          godexLink.href = text;
+          godexLink.target = '_blank';
+          godexLink.rel = 'noopener noreferrer';
+          godexLink.innerHTML = '🔗 Bekijk het overzicht op GoDex';
+          currentCard.appendChild(godexLink);
 
         } else if (isString && currentCard) {
           // VOEG ZOEKSTRING TOE
@@ -265,7 +269,7 @@
                                  lowerText.includes('legendary') ||
                                  lowerText.includes('costume') ||
                                  lowerText.includes('male') ||
-                                 lowerText.includes('female') ||
+                                 lowerText.includes('pikachu') ||
                                  lowerText.includes('pika');
 
           if ((hasCategoryCode || isCategoryWord) && currentCard) {
