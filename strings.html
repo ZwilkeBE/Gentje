@@ -262,7 +262,10 @@
         }
       }
 
-      // Vul de dropdown met alle gevonden spelers
+      // Sorteer de spelerslijst alfabetisch (A-Z)
+      playerList.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+
+      // Vul de dropdown met de gesorteerde spelers
       playerList.forEach(player => {
         const option = document.createElement('option');
         option.value = player.id;
