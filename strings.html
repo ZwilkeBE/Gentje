@@ -151,6 +151,25 @@
     .copy-btn:active { 
       transform: scale(0.98); 
     }
+    /* LINK KNOP (voor externe overzichten/links) */
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      background: #319795;
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .link-btn:hover {
+      background: #2c7a7b;
+    }
   </style>
 </head>
 <body>
@@ -206,10 +225,20 @@
         let text = rows[i] ? rows[i].trim() : '';
         if (!text) continue;
 
-        // Bepaal of deze regel een zoekstring is
+        const isUrl = text.startsWith('http://') || text.startsWith('https://');
         const isString = text.includes('&') || text.includes('!') || /^[\d,\s]+$/.test(text);
 
-        if (isString && currentCard) {
+        if (isUrl && currentCard) {
+          // IS EEN EXTERNE LINK
+          const linkBtn = document.createElement('a');
+          linkBtn.className = 'link-btn';
+          linkBtn.href = text;
+          linkBtn.target = '_blank';
+          linkBtn.rel = 'noopener noreferrer';
+          linkBtn.innerHTML = '🔗 Bekijk overzicht op externe pagina';
+          currentCard.appendChild(linkBtn);
+
+        } else if (isString && currentCard) {
           // VOEG ZOEKSTRING TOE
           const uniqueId = 'string-' + i;
           
@@ -225,13 +254,19 @@
 
           currentCard.appendChild(stringBox);
           currentCard.appendChild(copyBtn);
+
         } else {
           // HET IS EEN KOP (Categorie OF Spelersnaam)
+          const lowerText = text.toLowerCase();
           const hasCategoryCode = /\(C\d+\)/i.test(text);
-          const isCategoryWord = text.toLowerCase().includes('tradelijst') || 
-                                 text.toLowerCase().includes('lucky') || 
-                                 text.toLowerCase().includes('special') || 
-                                 text.toLowerCase().includes('legendary');
+          const isCategoryWord = lowerText.includes('tradelijst') || 
+                                 lowerText.includes('lucky') || 
+                                 lowerText.includes('special') || 
+                                 lowerText.includes('legendary') ||
+                                 lowerText.includes('costume') ||
+                                 lowerText.includes('male') ||
+                                 lowerText.includes('female') ||
+                                 lowerText.includes('pika');
 
           if ((hasCategoryCode || isCategoryWord) && currentCard) {
             // CATEGORIE: Maak titel schoon
@@ -241,6 +276,7 @@
             catHeader.className = 'category-title';
             catHeader.innerText = cleanCategory;
             currentCard.appendChild(catHeader);
+
           } else {
             // NIEUWE SPELER: Maak unieke ID voor navigatie
             const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
