@@ -147,20 +147,26 @@
       text-decoration: underline;
     }
     
-    .btn-home {
-  display: inline-block;
-  padding: 8px 14px;
-  background: #e2e8f0;
-  color: var(--primary-color);
-  text-decoration: none;
-  border-radius: 8px;
+ .btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 0.85rem;
-  transition: background 0.2s;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
 .btn-home:hover {
-  background: #cbd5e1;
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
   </style>
 </head>
@@ -170,8 +176,8 @@
     <div class="card">
       <!-- Plak de knop hier: -->
       <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-        <a href="/" class="btn-home">&larr; Hoofdsite</a>
-      </div>
+  <a href="/" class="btn-home">🏠 Terug naar POGO GENT</a>
+</div>
 
       <h1>POGOGent Community</h1>
       <p class="subtitle">Voeg je Trainer Code toe aan de openbare vriendenlijst</p>
