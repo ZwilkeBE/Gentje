@@ -146,18 +146,36 @@
       color: #64748b;
       font-weight: 600;
     }
+    .btn-home {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #e2e8f0;
+  color: var(--primary-color);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-home:hover {
+  background: #cbd5e1;
+}
   </style>
 </head>
 <body>
 
   <div class="container">
     <div class="card">
-      <div class="header-flex">
+     <div class="header-flex">
         <div>
           <h1>PoGoGent Friend Codes</h1>
           <p style="color: #666; font-size: 0.9rem;">Vind en voeg trainers uit de regio Gent toe!</p>
         </div>
-        <a href="join" class="btn-add">+ Mijn Code Toevoegen</a>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <a href="/" class="btn-home">&larr; Hoofdsite</a>
+          <a href="/join" class="btn-add">+ Mijn Code Toevoegen</a>
+        </div>
       </div>
 
       <div class="search-box">
