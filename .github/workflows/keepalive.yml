@@ -1,0 +1,16 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Draait elke dag om 08:00 UTC (09:00 of 10:00 Belgische tijd)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Zorgt ervoor dat je de actie ook handmatig kunt starten
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase URL
+        run: |
+          curl -s https://jgvouztircuqhrisisdd.supabase.co > /dev/null
+          echo "Supabase successfully pinged!"
