@@ -2,15 +2,18 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    # Draait elke dag om 08:00 UTC (09:00 of 10:00 Belgische tijd)
-    - cron: '0 8 * * *'
-  workflow_dispatch: # Zorgt ervoor dat je de actie ook handmatig kunt starten
+    - cron: '0 */6 * * *' # Draait voortaan elke 6 uur
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase URL
+      - name: Query Supabase Database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          curl -s https://jgvouztircuqhrisisdd.supabase.co > /dev/null
-          echo "Supabase successfully pinged!"
+          curl -s -X GET "${SUPABASE_URL}/rest/v1/trainers?select=id&limit=1" \
+          -H "apikey: ${SUPABASE_ANON_KEY}" \
+          -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
