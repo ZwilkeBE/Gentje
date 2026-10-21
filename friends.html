@@ -284,27 +284,28 @@
       });
     }
 
-    // Data ophalen uit Supabase
-    async function loadTrainers() {
-      const loadingDiv = document.getElementById('loading');
+    // Data ophalen uit Supabase (tot 10.000 rijen!)
+async function loadTrainers() {
+  const loadingDiv = document.getElementById('loading');
 
-      const { data, error } = await _supabase
-        .from('trainers')
-        .select('*')
-        .order('id', { ascending: false });
+  const { data, error } = await _supabase
+    .from('trainers')
+    .select('*')
+    .range(0, 9999) // Haalt tot wel 5.000 trainers op i.p.v. max 1.000
+    .order('id', { ascending: false });
 
-      loadingDiv.style.display = 'none';
+  loadingDiv.style.display = 'none';
 
-      if (error) {
-        console.error('Fout bij ophalen:', error);
-        loadingDiv.innerText = 'Fout bij het laden van de gegevens.';
-        loadingDiv.style.display = 'block';
-        return;
-      }
+  if (error) {
+    console.error('Fout bij ophalen:', error);
+    loadingDiv.innerText = 'Fout bij het laden van de gegevens.';
+    loadingDiv.style.display = 'block';
+    return;
+  }
 
-      allTrainers = data || [];
-      renderTable(allTrainers);
-    }
+  allTrainers = data || [];
+  renderTable(allTrainers);
+}
 
     // Zoekbalk functionaliteit
     document.getElementById('searchInput').addEventListener('input', (e) => {
