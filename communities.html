@@ -45,7 +45,7 @@
       color: #111;
       margin-bottom: 20px;
     }
-    /* ZOEKBALK & SORTEERCONTAINER */
+    /* ZOEKBALK CONTAINER */
     .controls-container {
       background: #ffffff;
       padding: 15px;
@@ -53,13 +53,11 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       border: 1px solid #e2e8f0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      align-items: center;
+      text-align: center;
     }
-    .search-input, .sort-select {
+    .search-input {
+      width: 100%;
+      max-width: 400px;
       padding: 10px 14px;
       font-size: 0.95rem;
       border-radius: 8px;
@@ -70,15 +68,7 @@
       box-sizing: border-box;
       transition: border-color 0.2s;
     }
-    .search-input {
-      flex: 1 1 250px;
-      max-width: 400px;
-    }
-    .sort-select {
-      flex: 0 1 200px;
-      cursor: pointer;
-    }
-    .search-input:focus, .sort-select:focus {
+    .search-input:focus {
       border-color: #3182ce;
       background-color: #fff;
     }
@@ -105,6 +95,17 @@
       color: #ffffff;
       font-weight: 600;
       white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+    }
+    th:hover {
+      background-color: #4a5568;
+    }
+    th .sort-icon {
+      font-size: 0.8rem;
+      margin-left: 5px;
+      opacity: 0.7;
     }
     tr:nth-child(even) {
       background-color: #f8fafc;
@@ -154,17 +155,9 @@
 
   <h2>POGO GENT — CA Communities</h2>
 
-  <!-- Zoekbalk & Sorteerkeuze -->
+  <!-- Zoekbalk -->
   <div class="controls-container">
-    <input type="text" id="search-bar" class="search-input" placeholder="🔍 Zoek een community, regio of naam..." onkeyup="filterTable()">
-    
-    <select id="sort-select" class="sort-select" onchange="sortData()">
-      <option value="default">↕️ Sorteer op...</option>
-      <option value="name-asc">🔤 Naam (A - Z)</option>
-      <option value="name-desc">🔤 Naam (Z - A)</option>
-      <option value="num-desc">🔢 Cijfers (Hoog - Laag)</option>
-      <option value="num-asc">🔢 Cijfers (Laag - Hoog)</option>
-    </select>
+    <input type="text" id="search-bar" class="search-input" placeholder="🔍 Zoek op community, regio, naam..." onkeyup="filterTable()">
   </div>
 
   <!-- Tabel Container -->
@@ -185,6 +178,9 @@
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM1dheEt0P1tYMI6nNJJp6vrxBHa65usegltwmRORUZC3ADDL89Jg-tHNdqaLqxJxw537tfVDP0Bwo/pub?gid=0&single=true&output=csv';
 
   let rawRowsData = [];
+  let headersData = [];
+  let currentSortCol = -1;
+  let sortAscending = true;
 
   async function loadCommunities() {
     try {
@@ -194,18 +190,10 @@
 
       if (rows.length === 0) return;
 
-      const headers = rows[0];
-      // Filter alleen echt lege rijen
+      headersData = rows[0];
       rawRowsData = rows.slice(1).filter(row => row.some(cell => cell.trim() !== ''));
 
-      const tableHead = document.getElementById('table-head');
-      let headHTML = '<tr>';
-      headers.forEach(header => {
-        headHTML += `<th>${escapeHTML(header.trim())}</th>`;
-      });
-      headHTML += '</tr>';
-      tableHead.innerHTML = headHTML;
-
+      renderHeader();
       renderTable(rawRowsData);
 
     } catch (err) {
@@ -214,6 +202,24 @@
     }
   }
 
+  // Bouw de klikbare kolomkoppen op
+  function renderHeader() {
+    const tableHead = document.getElementById('table-head');
+    let headHTML = '<tr>';
+    
+    headersData.forEach((header, index) => {
+      let icon = '↕️';
+      if (index === currentSortCol) {
+        icon = sortAscending ? '⬆️' : '⬇️';
+      }
+      headHTML += `<th onclick="sortTableByColumn(${index})">${escapeHTML(header.trim())} <span class="sort-icon">${icon}</span></th>`;
+    });
+    
+    headHTML += '</tr>';
+    tableHead.innerHTML = headHTML;
+  }
+
+  // Bouw de tabelinhoud op
   function renderTable(dataRows) {
     const tableBody = document.getElementById('table-body');
     let bodyHTML = '';
@@ -262,39 +268,42 @@
     filterTable();
   }
 
-  function sortData() {
-    const sortType = document.getElementById('sort-select').value;
-    if (sortType === 'default') {
-      renderTable(rawRowsData);
-      return;
+  // Sorteer op een specifieke kolom als er op de kop wordt geklikt
+  function sortTableByColumn(colIndex) {
+    if (currentSortCol === colIndex) {
+      sortAscending = !sortAscending;
+    } else {
+      currentSortCol = colIndex;
+      sortAscending = true;
     }
+
+    renderHeader();
 
     let sorted = [...rawRowsData];
 
     sorted.sort((rowA, rowB) => {
-      let textA = rowA[0] ? rowA[0].trim() : '';
-      let textB = rowB[0] ? rowB[0].trim() : '';
+      let valA = rowA[colIndex] ? rowA[colIndex].trim() : '';
+      let valB = rowB[colIndex] ? rowB[colIndex].trim() : '';
 
-      let numA = parseFloat(rowA.find(c => !isNaN(parseFloat(c)) && isFinite(c)) || 0);
-      let numB = parseFloat(rowB.find(c => !isNaN(parseFloat(c)) && isFinite(c)) || 0);
+      // Check of beide waarden getallen zijn
+      let numA = parseFloat(valA.replace(',', '.'));
+      let numB = parseFloat(valB.replace(',', '.'));
+      let isNum = !isNaN(numA) && !isNaN(numB) && valA !== '' && valB !== '';
 
-      switch (sortType) {
-        case 'name-asc':
-          return textA.localeCompare(textB, undefined, { numeric: true, sensitivity: 'base' });
-        case 'name-desc':
-          return textB.localeCompare(textA, undefined, { numeric: true, sensitivity: 'base' });
-        case 'num-desc':
-          return numB - numA;
-        case 'num-asc':
-          return numA - numB;
-        default:
-          return 0;
+      let comparison = 0;
+      if (isNum) {
+        comparison = numA - numB;
+      } else {
+        comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
       }
+
+      return sortAscending ? comparison : -comparison;
     });
 
     renderTable(sorted);
   }
 
+  // Live zoekfilter
   function filterTable() {
     const input = document.getElementById('search-bar').value.toLowerCase();
     const rows = document.getElementById('table-body').getElementsByTagName('tr');
@@ -305,9 +314,9 @@
     }
   }
 
-  // ROBUUSTE CSV PARSER (Respecteert aanhalingstekens en behoudt lege cellen)
+  // ROBUUSTE CSV PARSER
   function parseCSVRobust(text) {
-    let p = '', c = '', r = [];
+    let c = '', r = [];
     let q = false;
     let row = [''];
 
