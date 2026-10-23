@@ -112,14 +112,34 @@
     tr:hover {
       background-color: #edf2f7;
     }
-    /* LINKS IN DE TABEL */
-    td a {
-      color: #3182ce;
+    /* LINKS EN KNOPPEN IN DE TABEL */
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
       text-decoration: none;
-      font-weight: bold;
+      color: #ffffff;
+      background-color: #3182ce;
+      transition: background-color 0.2s;
     }
-    td a:hover {
-      text-decoration: underline;
+    .link-btn:hover {
+      background-color: #2b6cb0;
+    }
+    .link-btn.discord {
+      background-color: #5865F2;
+    }
+    .link-btn.discord:hover {
+      background-color: #4752C4;
+    }
+    .link-btn.campfire {
+      background-color: #FF5A00;
+    }
+    .link-btn.campfire:hover {
+      background-color: #E04F00;
     }
   </style>
 </head>
@@ -163,7 +183,7 @@
 <script>
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM1dheEt0P1tYMI6nNJJp6vrxBHa65usegltwmRORUZC3ADDL89Jg-tHNdqaLqxJxw537tfVDP0Bwo/pub?gid=0&single=true&output=csv';
 
-  let rawRowsData = []; // Bewaart de originele gegevens uit de sheet
+  let rawRowsData = [];
 
   async function loadCommunities() {
     try {
@@ -173,11 +193,9 @@
 
       if (rows.length === 0) return;
 
-      // Eerste regel zijn de koppen
       const headers = rows[0];
       rawRowsData = rows.slice(1).filter(row => row.length > 0 && (row.length > 1 || row[0]));
 
-      // Bouw de tabelkop
       const tableHead = document.getElementById('table-head');
       let headHTML = '<tr>';
       headers.forEach(header => {
@@ -186,7 +204,6 @@
       headHTML += '</tr>';
       tableHead.innerHTML = headHTML;
 
-      // Render de rijen
       renderTable(rawRowsData);
 
     } catch (err) {
@@ -195,7 +212,6 @@
     }
   }
 
-  // Bouw de tabelinhoud op
   function renderTable(dataRows) {
     const tableBody = document.getElementById('table-body');
     let bodyHTML = '';
@@ -204,8 +220,35 @@
       bodyHTML += '<tr>';
       row.forEach(cell => {
         let cellText = cell ? cell.trim() : '';
-        if (cellText.startsWith('http://') || cellText.startsWith('https://')) {
-          bodyHTML += `<td><a href="${escapeHTML(cellText)}" target="_blank" rel="noopener noreferrer">Bekijk link 🔗</a></td>`;
+
+        // Slimme herkenning van URL's (inclusief discord, campfire, etc.)
+        const isUrl = cellText.startsWith('http://') || 
+                      cellText.startsWith('https://') || 
+                      cellText.includes('discord.gg') || 
+                      cellText.includes('discord.com') || 
+                      cellText.includes('campfire') ||
+                      cellText.includes('facebook.com') ||
+                      cellText.includes('instagram.com') ||
+                      cellText.includes('whatsapp.com');
+
+        if (isUrl) {
+          let fullUrl = cellText;
+          if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+            fullUrl = 'https://' + fullUrl;
+          }
+
+          let btnClass = 'link-btn';
+          let btnLabel = 'Bekijk link 🔗';
+
+          if (fullUrl.includes('discord')) {
+            btnClass += ' discord';
+            btnLabel = 'Join Discord 💬';
+          } else if (fullUrl.includes('campfire')) {
+            btnClass += ' campfire';
+            btnLabel = 'Bekijk Campfire 🔥';
+          }
+
+          bodyHTML += `<td><a href="${escapeHTML(fullUrl)}" target="_blank" rel="noopener noreferrer" class="${btnClass}">${btnLabel}</a></td>`;
         } else {
           bodyHTML += `<td>${escapeHTML(cellText)}</td>`;
         }
@@ -214,10 +257,9 @@
     });
 
     tableBody.innerHTML = bodyHTML;
-    filterTable(); // Behoud eventuele zoekfilters
+    filterTable();
   }
 
-  // Slimme sorteer-functie
   function sortData() {
     const sortType = document.getElementById('sort-select').value;
     if (sortType === 'default') {
@@ -228,11 +270,9 @@
     let sorted = [...rawRowsData];
 
     sorted.sort((rowA, rowB) => {
-      // Bepaal de waarden van de eerste kolom (of zoek naar cijferwaarden in de rij)
       let textA = rowA[0] ? rowA[0].trim() : '';
       let textB = rowB[0] ? rowB[0].trim() : '';
 
-      // Zoek naar getallen in de rijen om op cijfers te kunnen sorteren
       let numA = parseFloat(rowA.find(c => !isNaN(parseFloat(c)) && isFinite(c)) || 0);
       let numB = parseFloat(rowB.find(c => !isNaN(parseFloat(c)) && isFinite(c)) || 0);
 
@@ -253,7 +293,6 @@
     renderTable(sorted);
   }
 
-  // Live zoekfilter
   function filterTable() {
     const input = document.getElementById('search-bar').value.toLowerCase();
     const rows = document.getElementById('table-body').getElementsByTagName('tr');
@@ -264,7 +303,6 @@
     }
   }
 
-  // CSV Parser
   function parseCSV(text) {
     const lines = text.split(/\r?\n/);
     return lines.map(line => {
