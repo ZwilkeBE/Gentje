@@ -45,21 +45,23 @@
       color: #111;
       margin-bottom: 20px;
     }
-    /* ZOEKBALK */
-    .search-container {
+    /* ZOEKBALK & SORTEERCONTAINER */
+    .controls-container {
       background: #ffffff;
       padding: 15px;
       border-radius: 10px;
       margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       border: 1px solid #e2e8f0;
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
     }
-    .search-input {
-      width: 100%;
-      max-width: 400px;
+    .search-input, .sort-select {
       padding: 10px 14px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
       background-color: #f8fafc;
@@ -68,7 +70,15 @@
       box-sizing: border-box;
       transition: border-color 0.2s;
     }
-    .search-input:focus {
+    .search-input {
+      flex: 1 1 250px;
+      max-width: 400px;
+    }
+    .sort-select {
+      flex: 0 1 200px;
+      cursor: pointer;
+    }
+    .search-input:focus, .sort-select:focus {
       border-color: #3182ce;
       background-color: #fff;
     }
@@ -123,9 +133,17 @@
 
   <h2>POGO GENT — CA Communities</h2>
 
-  <!-- Zoekbalk -->
-  <div class="search-container">
+  <!-- Zoekbalk & Sorteerkeuze -->
+  <div class="controls-container">
     <input type="text" id="search-bar" class="search-input" placeholder="🔍 Zoek een community, regio of naam..." onkeyup="filterTable()">
+    
+    <select id="sort-select" class="sort-select" onchange="sortData()">
+      <option value="default">↕️ Sorteer op...</option>
+      <option value="name-asc">🔤 Naam (A - Z)</option>
+      <option value="name-desc">🔤 Naam (Z - A)</option>
+      <option value="num-desc">🔢 Cijfers (Hoog - Laag)</option>
+      <option value="num-asc">🔢 Cijfers (Laag - Hoog)</option>
+    </select>
   </div>
 
   <!-- Tabel Container -->
@@ -145,6 +163,8 @@
 <script>
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM1dheEt0P1tYMI6nNJJp6vrxBHa65usegltwmRORUZC3ADDL89Jg-tHNdqaLqxJxw537tfVDP0Bwo/pub?gid=0&single=true&output=csv';
 
+  let rawRowsData = []; // Bewaart de originele gegevens uit de sheet
+
   async function loadCommunities() {
     try {
       const response = await fetch(CSV_URL);
@@ -153,39 +173,84 @@
 
       if (rows.length === 0) return;
 
-      const tableHead = document.getElementById('table-head');
-      const tableBody = document.getElementById('table-body');
+      // Eerste regel zijn de koppen
+      const headers = rows[0];
+      rawRowsData = rows.slice(1).filter(row => row.length > 0 && (row.length > 1 || row[0]));
 
-      // Kolomkoppen opbouwen (Eerste regel uit de sheet)
+      // Bouw de tabelkop
+      const tableHead = document.getElementById('table-head');
       let headHTML = '<tr>';
-      rows[0].forEach(header => {
+      headers.forEach(header => {
         headHTML += `<th>${escapeHTML(header)}</th>`;
       });
       headHTML += '</tr>';
       tableHead.innerHTML = headHTML;
 
-      // Data-regels opbouwen
-      let bodyHTML = '';
-      for (let i = 1; i < rows.length; i++) {
-        if (rows[i].length === 0 || (rows[i].length === 1 && !rows[i][0])) continue;
-        
-        bodyHTML += '<tr>';
-        rows[i].forEach(cell => {
-          let cellText = cell.trim();
-          if (cellText.startsWith('http://') || cellText.startsWith('https://')) {
-            bodyHTML += `<td><a href="${escapeHTML(cellText)}" target="_blank" rel="noopener noreferrer">Bekijk link 🔗</a></td>`;
-          } else {
-            bodyHTML += `<td>${escapeHTML(cellText)}</td>`;
-          }
-        });
-        bodyHTML += '</tr>';
-      }
-      tableBody.innerHTML = bodyHTML;
+      // Render de rijen
+      renderTable(rawRowsData);
 
     } catch (err) {
       console.error(err);
       document.getElementById('table-head').innerHTML = '<tr><th>Er is een fout opgetreden bij het laden.</th></tr>';
     }
+  }
+
+  // Bouw de tabelinhoud op
+  function renderTable(dataRows) {
+    const tableBody = document.getElementById('table-body');
+    let bodyHTML = '';
+
+    dataRows.forEach(row => {
+      bodyHTML += '<tr>';
+      row.forEach(cell => {
+        let cellText = cell ? cell.trim() : '';
+        if (cellText.startsWith('http://') || cellText.startsWith('https://')) {
+          bodyHTML += `<td><a href="${escapeHTML(cellText)}" target="_blank" rel="noopener noreferrer">Bekijk link 🔗</a></td>`;
+        } else {
+          bodyHTML += `<td>${escapeHTML(cellText)}</td>`;
+        }
+      });
+      bodyHTML += '</tr>';
+    });
+
+    tableBody.innerHTML = bodyHTML;
+    filterTable(); // Behoud eventuele zoekfilters
+  }
+
+  // Slimme sorteer-functie
+  function sortData() {
+    const sortType = document.getElementById('sort-select').value;
+    if (sortType === 'default') {
+      renderTable(rawRowsData);
+      return;
+    }
+
+    let sorted = [...rawRowsData];
+
+    sorted.sort((rowA, rowB) => {
+      // Bepaal de waarden van de eerste kolom (of zoek naar cijferwaarden in de rij)
+      let textA = rowA[0] ? rowA[0].trim() : '';
+      let textB = rowB[0] ? rowB[0].trim() : '';
+
+      // Zoek naar getallen in de rijen om op cijfers te kunnen sorteren
+      let numA = parseFloat(rowA.find(c => !isNaN(parseFloat(c)) && isFinite(c)) || 0);
+      let numB = parseFloat(rowB.find(c => !isNaN(parseFloat(c)) && isFinite(c)) || 0);
+
+      switch (sortType) {
+        case 'name-asc':
+          return textA.localeCompare(textB, undefined, { numeric: true, sensitivity: 'base' });
+        case 'name-desc':
+          return textB.localeCompare(textA, undefined, { numeric: true, sensitivity: 'base' });
+        case 'num-desc':
+          return numB - numA;
+        case 'num-asc':
+          return numA - numB;
+        default:
+          return 0;
+      }
+    });
+
+    renderTable(sorted);
   }
 
   // Live zoekfilter
