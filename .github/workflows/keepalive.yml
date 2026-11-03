@@ -2,7 +2,7 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Draait voortaan elke 6 uur
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,6 +14,21 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          curl -s -X GET "${SUPABASE_URL}/rest/v1/trainers?select=id&limit=1" \
-          -H "apikey: ${SUPABASE_ANON_KEY}" \
-          -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
+          # Verwijder eventuele schuine streep aan het einde van de URL
+          URL="${SUPABASE_URL%/}"
+          
+          # Voer het verzoek uit met de nodige headers
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${URL}/rest/v1/trainers?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+          
+          echo "Supabase HTTP response code: $RESPONSE"
+          
+          # Controleer of de HTTP-code 200 (Succes) is
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "Supabase ping succesvol!"
+            exit 0
+          else
+            echo "Fout bij pingen van Supabase (HTTP status $RESPONSE)"
+            exit 1
+          fi
