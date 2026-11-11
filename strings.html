@@ -280,7 +280,7 @@
           currentCard.appendChild(copyBtn);
 
         } else if (isUnownList && currentCard) {
-          // UNOWN LETTERS BLOK
+          // UNOWN LETTERS BLOK (Wordt nu netjes toegevoegd binnen de kaart!)
           const unownBox = document.createElement('div');
           unownBox.className = 'unown-box';
           unownBox.innerText = text;
@@ -310,9 +310,18 @@
             currentCard.appendChild(catHeader);
 
           } else {
-            // Dit is een spelersnaam (we weren ook Unown-letterreeksen zodat die nooit als speler worden gezien)
-            if (text.includes('-') && text.includes('?')) continue;
+            // Als het een Unown-lijst is maar om een of andere reden hier belandt, sla hem over als speler
+            if (lastCategory.includes('unown') && (text.includes('-') || text.includes('?'))) {
+              if (currentCard) {
+                const unownBox = document.createElement('div');
+                unownBox.className = 'unown-box';
+                unownBox.innerText = text;
+                currentCard.appendChild(unownBox);
+              }
+              continue;
+            }
 
+            // SPELERSNAAM
             lastCategory = '';
             const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
 
