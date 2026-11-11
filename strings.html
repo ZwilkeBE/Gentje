@@ -241,12 +241,15 @@
         let text = rows[i] ? rows[i].trim() : '';
         if (!text) continue;
 
+        // Negeer `#REF!` regels volledig
+        if (text.includes('#REF!')) continue;
+
         const isUrl = text.startsWith('http://') || text.startsWith('https://');
         
         // EEN ECHTE ZOEKSTRING BEVAT GETALLEN EN SPECIALE POKEMON SYMBOLEN
         const isString = /[\d]/.test(text) && (text.includes(',') || text.includes('&') || text.includes('!'));
 
-        // UNOWN LIJST CHECK: Moet duidelijke letters/tekens met streepjes bevatten (bijv. B - C - D)
+        // UNOWN LIJST CHECK
         const isUnownList = lastCategory.includes('unown') && (text.includes('-') || text.includes('?')) && !text.includes('&') && !text.includes('!');
 
         if (isUrl && currentCard) {
@@ -260,7 +263,7 @@
           currentCard.appendChild(godexLink);
 
         } else if (isString && currentCard) {
-          // ZOEKSTRING (Met grijze box & kopieerknop)
+          // ZOEKSTRING
           const uniqueId = 'string-' + i;
           
           const stringBox = document.createElement('div');
@@ -307,7 +310,9 @@
             currentCard.appendChild(catHeader);
 
           } else {
-            // SPELERSNAAM (Wordt nu nooit meer verward met unown-lijsten)
+            // Dit is een spelersnaam (we weren ook Unown-letterreeksen zodat die nooit als speler worden gezien)
+            if (text.includes('-') && text.includes('?')) continue;
+
             lastCategory = '';
             const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
 
