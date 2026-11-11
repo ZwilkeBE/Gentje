@@ -246,6 +246,9 @@
         // EEN ECHTE ZOEKSTRING BEVAT GETALLEN EN SPECIALE POKEMON SYMBOLEN
         const isString = /[\d]/.test(text) && (text.includes(',') || text.includes('&') || text.includes('!'));
 
+        // UNOWN LIJST CHECK: Moet duidelijke letters/tekens met streepjes bevatten (bijv. B - C - D)
+        const isUnownList = lastCategory.includes('unown') && (text.includes('-') || text.includes('?')) && !text.includes('&') && !text.includes('!');
+
         if (isUrl && currentCard) {
           // GODEX LINK
           const godexLink = document.createElement('a');
@@ -273,6 +276,13 @@
           currentCard.appendChild(stringBox);
           currentCard.appendChild(copyBtn);
 
+        } else if (isUnownList && currentCard) {
+          // UNOWN LETTERS BLOK
+          const unownBox = document.createElement('div');
+          unownBox.className = 'unown-box';
+          unownBox.innerText = text;
+          currentCard.appendChild(unownBox);
+
         } else {
           const lowerText = text.toLowerCase();
           const hasCategoryCode = /\(C\d+\)/i.test(text);
@@ -296,15 +306,8 @@
             catHeader.innerText = cleanCategory;
             currentCard.appendChild(catHeader);
 
-          } else if (lastCategory.includes('unown') && currentCard) {
-            // UNOWN LETTERS BLOK
-            const unownBox = document.createElement('div');
-            unownBox.className = 'unown-box';
-            unownBox.innerText = text;
-            currentCard.appendChild(unownBox);
-
           } else {
-            // SPELERSNAAM
+            // SPELERSNAAM (Wordt nu nooit meer verward met unown-lijsten)
             lastCategory = '';
             const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
 
