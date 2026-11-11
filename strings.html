@@ -129,6 +129,17 @@
       overflow-y: auto; 
       color: #334155;
     }
+    .unown-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #1e293b;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
     .copy-btn { 
       margin-top: 8px; 
       margin-bottom: 12px;
@@ -223,6 +234,7 @@
       }
 
       let currentCard = null;
+      let lastCategory = '';
       let playerList = [];
 
       for (let i = 1; i < rows.length; i++) {
@@ -231,11 +243,11 @@
 
         const isUrl = text.startsWith('http://') || text.startsWith('https://');
         
-        // EEN ECHTE ZOEKSTRING BEVAT GETALLEN (bijv. "26,58,83..." of "!4*")
+        // EEN ECHTE ZOEKSTRING BEVAT GETALLEN EN SPECIALE POKEMON SYMBOLEN
         const isString = /[\d]/.test(text) && (text.includes(',') || text.includes('&') || text.includes('!'));
 
         if (isUrl && currentCard) {
-          // IS EEN EXTERNE GODEX LINK
+          // GODEX LINK
           const godexLink = document.createElement('a');
           godexLink.className = 'godex-btn';
           godexLink.href = text;
@@ -245,7 +257,7 @@
           currentCard.appendChild(godexLink);
 
         } else if (isString && currentCard) {
-          // VOEG ZOEKSTRING TOE (Met grijze box & kopieerknop)
+          // ZOEKSTRING (Met grijze box & kopieerknop)
           const uniqueId = 'string-' + i;
           
           const stringBox = document.createElement('div');
@@ -262,28 +274,38 @@
           currentCard.appendChild(copyBtn);
 
         } else {
-          // HET IS EEN KOP (Categorie OF Spelersnaam)
           const lowerText = text.toLowerCase();
           const hasCategoryCode = /\(C\d+\)/i.test(text);
           const isCategoryWord = lowerText.includes('tradelijst') || 
                                  lowerText.includes('lucky') || 
                                  lowerText.includes('special') || 
                                  lowerText.includes('legendary') ||
+                                 lowerText.includes('dynamax') ||
                                  lowerText.includes('event') ||
                                  lowerText.includes('costume') ||
-                                 lowerText.includes('pikachu');
+                                 lowerText.includes('pikachu') ||
+                                 lowerText.includes('unown');
 
           if ((hasCategoryCode || isCategoryWord) && currentCard) {
             // CATEGORIE / SUBTITEL
             let cleanCategory = text.replace(/\s*\(C\d+\)/gi, '').replace(/\s*\(.*?\)/g, '').trim();
+            lastCategory = cleanCategory.toLowerCase();
 
             const catHeader = document.createElement('h4');
             catHeader.className = 'category-title';
             catHeader.innerText = cleanCategory;
             currentCard.appendChild(catHeader);
 
+          } else if (lastCategory.includes('unown') && currentCard) {
+            // UNOWN LETTERS BLOK
+            const unownBox = document.createElement('div');
+            unownBox.className = 'unown-box';
+            unownBox.innerText = text;
+            currentCard.appendChild(unownBox);
+
           } else {
             // SPELERSNAAM
+            lastCategory = '';
             const playerId = 'player-' + text.toLowerCase().replace(/[^a-z0-9]/g, '');
 
             currentCard = document.createElement('div');
@@ -320,7 +342,6 @@
     }
   }
 
-  // Navigatie-functie met scroll & highlight effect
   function scrollToPlayer(elementId) {
     if (!elementId) return;
 
@@ -338,7 +359,6 @@
     }
   }
 
-  // Betrouwbare CSV-regel lezer
   function parseCSVLines(csvText) {
     const lines = csvText.split(/\r?\n/);
     return lines.map(line => {
@@ -350,7 +370,6 @@
     });
   }
 
-  // Kopieer-functie met visuele feedback
   function copyToClipboard(elementId, btnElement) {
     const text = document.getElementById(elementId).innerText;
     navigator.clipboard.writeText(text).then(() => {
