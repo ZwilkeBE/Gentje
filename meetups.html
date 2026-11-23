@@ -69,6 +69,14 @@
       font-size: 0.9rem;
     }
 
+    input[type="checkbox"] {
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
     button {
       cursor: pointer;
       font-weight: 600;
@@ -90,11 +98,22 @@
       gap: 0.75rem;
       margin-bottom: 1.25rem;
       flex-wrap: wrap;
+      align-items: center;
     }
 
-    .filters input {
+    .filters input[type="text"] {
       flex: 1;
       min-width: 220px;
+    }
+
+    .toggle-past {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
     }
 
     .table-wrap {
@@ -179,6 +198,10 @@
       <select id="typeFilter" onchange="renderTable()">
         <option value="">Alle event-types</option>
       </select>
+      <label class="toggle-past">
+        <input type="checkbox" id="showPast" onchange="renderTable()" />
+        Toon voorbije meetups
+      </label>
     </div>
 
     <div class="table-wrap">
@@ -205,6 +228,61 @@
 
     let allMeetups = [];
 
+    const maanden = {
+      jan: 0, january: 0, januari: 0,
+      feb: 1, february: 1, februari: 1,
+      mar: 2, march: 2, maart: 2,
+      apr: 3, april: 3,
+      may: 4, mei: 4,
+      jun: 5, june: 5, juni: 5,
+      jul: 6, july: 6, juli: 6,
+      aug: 7, august: 7, augustus: 7,
+      sep: 8, september: 8,
+      oct: 9, october: 9, oktober: 9,
+      nov: 10, november: 10,
+      dec: 11, december: 11
+    };
+
+    function parseMeetupDate(datumStr) {
+      if (!datumStr) return null;
+      const clean = datumStr.replace(/\bLocal Time\b/gi, '').trim();
+
+      let m = clean.match(/\b([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})\b/);
+      if (m) {
+        const month = maanden[m[1].toLowerCase()];
+        if (month !== undefined) return new Date(Number(m[3]), month, Number(m[2]));
+      }
+
+      m = clean.match(/\b([a-zA-Z]{3})\s+(\d{1,2})\b/);
+      if (m) {
+        const month = maanden[m[1].toLowerCase()];
+        if (month !== undefined) {
+          const now = new Date();
+          let year = now.getFullYear();
+          if (month < now.getMonth() - 2) year += 1;
+          return new Date(year, month, Number(m[2]));
+        }
+      }
+
+      m = clean.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\b/);
+      if (m) {
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      }
+
+      return null;
+    }
+
+    function isPastMeetup(datumStr) {
+      const dateObj = parseMeetupDate(datumStr);
+      if (!dateObj || isNaN(dateObj.getTime())) return false;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      dateObj.setHours(0, 0, 0, 0);
+
+      return dateObj < today;
+    }
+
     function parseCSV(text) {
       const rows = [];
       let row = [], val = '', inQuotes = false;
@@ -221,106 +299,4 @@
         } else { val += c; }
       }
       if (val !== '' || row.length > 0) {
-        row.push(val.trim());
-        rows.push(row);
-      }
-      return rows;
-    }
-
-    function getCrowdBadgeClass(crowd) {
-      const lower = (crowd || '').toLowerCase();
-      if (lower.includes('groot') || lower.includes('300') || lower.includes('hoog')) return 'badge-high';
-      if (lower.includes('gemiddeld') || lower.includes('150') || lower.includes('200')) return 'badge-med';
-      if (lower.includes('klein') || lower.includes('laag') || lower.includes('50')) return 'badge-low';
-      return 'badge-default';
-    }
-
-    async function loadMeetups() {
-      const tbody = document.getElementById('meetupBody');
-
-      try {
-        const res = await fetch(SHEET_CSV_URL + '&t=' + Date.now());
-        const csvText = await res.text();
-        const rows = parseCSV(csvText);
-
-        if (rows.length <= 1) {
-          tbody.innerHTML = '<tr><td colspan="6" class="status">Geen meetups gevonden in het tabblad.</td></tr>';
-          return;
-        }
-
-        allMeetups = rows.slice(1).map(r => ({
-          datum: r[0] || '',
-          uren: r[1] || '',
-          type: r[2] || '',
-          naam: r[3] || '',
-          opkomst: r[4] || 'Nog te bepalen',
-          foto: r[5] || '—'
-        }));
-
-        const types = [...new Set(allMeetups.map(m => m.type).filter(Boolean))];
-        const select = document.getElementById('typeFilter');
-        types.forEach(t => {
-          const opt = document.createElement('option');
-          opt.value = t;
-          opt.textContent = t;
-          select.appendChild(opt);
-        });
-
-        renderTable();
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = '<tr><td colspan="6" class="status">❌ Kon de Google Sheet niet ophalen. Controleer of het tabblad gepubliceerd is als CSV.</td></tr>';
-      }
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById('meetupBody');
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const selectedType = document.getElementById('typeFilter').value;
-
-      const filtered = allMeetups.filter(m => {
-        const matchesType = !selectedType || m.type === selectedType;
-        const matchesQuery = !query ||
-          m.datum.toLowerCase().includes(query) ||
-          m.naam.toLowerCase().includes(query) ||
-          m.type.toLowerCase().includes(query);
-        return matchesType && matchesQuery;
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="status">Geen meetups gevonden voor deze filter.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(m => `
-        <tr>
-          <td><strong>${escapeHtml(m.datum)}</strong></td>
-          <td>${escapeHtml(m.uren)}</td>
-          <td>${escapeHtml(m.type)}</td>
-          <td>${escapeHtml(m.naam)}</td>
-          <td><span class="badge ${getCrowdBadgeClass(m.opkomst)}">${escapeHtml(m.opkomst)}</span></td>
-          <td class="photo-time">${escapeHtml(m.foto)}</td>
-        </tr>
-      `).join('');
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-    }
-
-    function downloadCSV() {
-      const header = ["Datum;Uren;Type Event;Event Naam;Verwachte opkomst;Tijdstip groepsfoto"];
-      const lines = allMeetups.map(m =>
-        `"${m.datum}";"${m.uren}";"${m.type}";"${m.naam}";"${m.opkomst}";"${m.foto}"`
-      );
-      const blob = new Blob(["\uFEFF" + header.concat(lines).join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'POGO_GENT_SMAK_Meetups.csv';
-      a.click();
-    }
-
-    loadMeetups();
-  </script>
-</body>
-</html>
+        row.
