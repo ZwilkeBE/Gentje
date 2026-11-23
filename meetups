@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POGO GENT – Meetup Overzicht Citadelpark / S.M.A.K.</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --badge-low: #1e3a8a;
+      --badge-med: #854d0e;
+      --badge-high: #991b1b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    button, select, input {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.15s ease;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+    }
+
+    button.primary:hover {
+      opacity: 0.9;
+    }
+
+    .filters {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .filters input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-low { background: var(--badge-low); color: #bfdbfe; }
+    .badge-med { background: var(--badge-med); color: #fef08a; }
+    .badge-high { background: var(--badge-high); color: #fecaca; }
+    .badge-default { background: #334155; color: #e2e8f0; }
+
+    .photo-time {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .status {
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .actions, .filters { display: none; }
+      .table-wrap { border: 1px solid #ccc; }
+      th { background: #f1f5f9; color: #000; }
+      td { border-color: #ddd; color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>POGO GENT – Meetup Overzicht (S.M.A.K. / Citadelpark)</h1>
+        <p class="subtitle">Verzamellocatie: Plein voor S.M.A.K. (Jan Hoetplein, Gent)</p>
+      </div>
+      <div class="actions">
+        <button onclick="window.print()">Afdrukken / PDF</button>
+        <button class="primary" onclick="downloadCSV()">Download CSV</button>
+      </div>
+    </header>
+
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="Zoek op datum of event..." oninput="renderTable()" />
+      <select id="typeFilter" onchange="renderTable()">
+        <option value="">Alle event-types</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Uren</th>
+            <th>Type Event</th>
+            <th>Event</th>
+            <th>Verwachte opkomst</th>
+            <th>Tijdstip groepsfoto</th>
+          </tr>
+        </thead>
+        <tbody id="meetupBody">
+          <tr><td colspan="6" class="status">Meetups laden vanuit planning...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX1OrMgt__NVJVP0lxrfimr0ihO1jbqWB3u1Oi-6UHlGrjq4KtlwbgnurM6YdkqYiuN8cx7xchteTL/pub?gid=0&single=true&output=csv";
+
+    let allMeetups = [];
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [], val = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i], next = text[i + 1];
+        if (c === '"' && inQuotes && next === '"') { val += '"'; i++; }
+        else if (c === '"') { inQuotes = !inQuotes; }
+        else if (c === ',' && !inQuotes) { row.push(val.trim()); val = ''; }
+        else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && next === '\n') i++;
+          row.push(val.trim());
+          if (row.some(cell => cell !== '')) rows.push(row);
+          row = []; val = '';
+        } else { val += c; }
+      }
+      if (val !== '' || row.length > 0) {
+        row.push(val.trim());
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function getCrowdBadgeClass(crowd) {
+      const lower = (crowd || '').toLowerCase();
+      if (lower.includes('groot') || lower.includes('300') || lower.includes('hoog')) return 'badge-high';
+      if (lower.includes('gemiddeld') || lower.includes('150') || lower.includes('200')) return 'badge-med';
+      if (lower.includes('klein') || lower.includes('laag') || lower.includes('50')) return 'badge-low';
+      return 'badge-default';
+    }
+
+    async function loadMeetups() {
+      const tbody = document.getElementById('meetupBody');
+
+      try {
+        const res = await fetch(SHEET_CSV_URL + '&t=' + Date.now());
+        const csvText = await res.text();
+        const rows = parseCSV(csvText);
+
+        if (rows.length <= 1) {
+          tbody.innerHTML = '<tr><td colspan="6" class="status">Geen meetups gevonden in het tabblad.</td></tr>';
+          return;
+        }
+
+        allMeetups = rows.slice(1).map(r => ({
+          datum: r[0] || '',
+          uren: r[1] || '',
+          type: r[2] || '',
+          naam: r[3] || '',
+          opkomst: r[4] || 'Nog te bepalen',
+          foto: r[5] || '—'
+        }));
+
+        const types = [...new Set(allMeetups.map(m => m.type).filter(Boolean))];
+        const select = document.getElementById('typeFilter');
+        types.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          select.appendChild(opt);
+        });
+
+        renderTable();
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="6" class="status">❌ Kon de Google Sheet niet ophalen. Controleer of het tabblad gepubliceerd is als CSV.</td></tr>';
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('meetupBody');
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const selectedType = document.getElementById('typeFilter').value;
+
+      const filtered = allMeetups.filter(m => {
+        const matchesType = !selectedType || m.type === selectedType;
+        const matchesQuery = !query ||
+          m.datum.toLowerCase().includes(query) ||
+          m.naam.toLowerCase().includes(query) ||
+          m.type.toLowerCase().includes(query);
+        return matchesType && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="status">Geen meetups gevonden voor deze filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(m => `
+        <tr>
+          <td><strong>${escapeHtml(m.datum)}</strong></td>
+          <td>${escapeHtml(m.uren)}</td>
+          <td>${escapeHtml(m.type)}</td>
+          <td>${escapeHtml(m.naam)}</td>
+          <td><span class="badge ${getCrowdBadgeClass(m.opkomst)}">${escapeHtml(m.opkomst)}</span></td>
+          <td class="photo-time">${escapeHtml(m.foto)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function downloadCSV() {
+      const header = ["Datum;Uren;Type Event;Event Naam;Verwachte opkomst;Tijdstip groepsfoto"];
+      const lines = allMeetups.map(m =>
+        `"${m.datum}";"${m.uren}";"${m.type}";"${m.naam}";"${m.opkomst}";"${m.foto}"`
+      );
+      const blob = new Blob(["\uFEFF" + header.concat(lines).join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'POGO_GENT_SMAK_Meetups.csv';
+      a.click();
+    }
+
+    loadMeetups();
+  </script>
+</body>
+</html>
